@@ -437,9 +437,26 @@ export async function getMCCStats() {
 export async function getRecommendations() {
   if (!USE_MOCK) {
     const res = await apiRequest(ENDPOINTS.getRecommendations);
-    return Array.isArray(res) ? res : (res.recommendations || res.products || []);
+    // New shape: { currentFootprint, projectedFootprint, totalPotentialSaving, recommendations: [...] }
+    if (res && res.recommendations) {
+      return res;
+    }
+    // Legacy fallback: plain array
+    const items = Array.isArray(res) ? res : (res.products || []);
+    return {
+      currentFootprint: null,
+      projectedFootprint: null,
+      totalPotentialSaving: items.reduce((s, r) => s + (r.savingKg || 0), 0),
+      recommendations: items,
+    };
   }
-  return mockRecommendations;
+  const totalSaving = mockRecommendations.reduce((s, r) => s + r.savingKg, 0);
+  return {
+    currentFootprint: 620,
+    projectedFootprint: Math.max(0, 620 - totalSaving),
+    totalPotentialSaving: totalSaving,
+    recommendations: mockRecommendations,
+  };
 }
 
 export async function dismissRecommendation(id) {

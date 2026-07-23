@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { CheckCircle2, ArrowRight, Shield, TrendingDown, Wallet, Building2, User, Filter, Leaf } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { CheckCircle2, ArrowRight, Shield, TrendingDown, Wallet, Building2, User, Filter, Leaf, Sparkles, Star } from 'lucide-react';
 import { getGreenFinancing, applyGreenProduct } from '@/services/api';
 
 function formatAmount(amt) {
@@ -31,7 +31,7 @@ function getCatStyle(cat) {
   return CATEGORY_COLORS[cat] || { bg: 'bg-slate-100', text: 'text-slate-700' };
 }
 
-export default function GreenFinancing() {
+export default function GreenFinancing({ highlightInfo }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applied, setApplied] = useState({});
@@ -48,6 +48,69 @@ export default function GreenFinancing() {
     await applyGreenProduct(id);
     setApplied((prev) => ({ ...prev, [id]: true }));
   };
+
+  // Determine highlighted product ID from recommendation context
+  const matchedProductId = useMemo(() => {
+    if (!highlightInfo || !items.length) return null;
+
+    // 1. Direct ID match
+    if (highlightInfo.productId) {
+      const found = items.find((p) => p.id === highlightInfo.productId || p.productId === highlightInfo.productId);
+      if (found) return found.id || found.productId;
+    }
+
+    // 2. Title / Category Keyword Match
+    const titleLower = (highlightInfo.title || '').toLowerCase();
+    const catLower = (highlightInfo.category || '').toLowerCase();
+
+    // Match EV / Vehicle / Transport
+    if (titleLower.includes('ev') || titleLower.includes('electric') || titleLower.includes('vehicle') || catLower.includes('transport') || catLower.includes('fuel')) {
+      const evProd = items.find((p) => {
+        const name = (p.name || p.productName || '').toLowerCase();
+        return name.includes('ev') || name.includes('electric') || name.includes('fleet') || name.includes('vehicle');
+      });
+      if (evProd) return evProd.id || evProd.productId;
+    }
+
+    // Match Solar / Energy / Utilities
+    if (titleLower.includes('solar') || titleLower.includes('renewable') || titleLower.includes('energy') || catLower.includes('utilit')) {
+      const solarProd = items.find((p) => {
+        const name = (p.name || p.productName || '').toLowerCase();
+        return name.includes('solar') || name.includes('renewable') || name.includes('energy');
+      });
+      if (solarProd) return solarProd.id || solarProd.productId;
+    }
+
+    // Match Supply Chain / Green / Food
+    if (titleLower.includes('supply') || titleLower.includes('chain') || titleLower.includes('green') || catLower.includes('food') || catLower.includes('grocer')) {
+      const scProd = items.find((p) => {
+        const name = (p.name || p.productName || '').toLowerCase();
+        return name.includes('supply') || name.includes('green') || name.includes('sustainable');
+      });
+      if (scProd) return scProd.id || scProd.productId;
+    }
+
+    return items[0]?.id || items[0]?.productId || null;
+  }, [highlightInfo, items]);
+
+  const matchedProduct = useMemo(() => {
+    if (!matchedProductId) return null;
+    return items.find((p) => p.id === matchedProductId || p.productId === matchedProductId);
+  }, [matchedProductId, items]);
+
+  useEffect(() => {
+    if (matchedProductId) {
+      setCustomerTab('ALL');
+      setCategoryTab('ALL');
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`product-${matchedProductId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [matchedProductId]);
 
   // Derive available categories dynamically from loaded data
   const availableCategories = [
@@ -138,6 +201,28 @@ export default function GreenFinancing() {
         })}
       </div>
 
+      {/* Highlighted Recommendation Banner */}
+      {matchedProduct && (
+        <div className="relative overflow-hidden p-4 bg-gradient-to-r from-emerald-800 via-teal-800 to-cyan-900 rounded-2xl text-white shadow-md border border-emerald-500/30">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-emerald-500/20 backdrop-blur-md rounded-xl border border-emerald-400/30">
+              <Sparkles className="w-5 h-5 text-emerald-300" />
+            </div>
+            <div>
+              <span className="text-[11px] font-bold tracking-wider text-emerald-300 uppercase">Recommendation Match Found</span>
+              <h3 className="text-sm font-bold text-white mt-0.5">
+                Best Match for You: {matchedProduct.name}
+              </h3>
+              {highlightInfo?.title && (
+                <p className="text-xs text-emerald-100 mt-0.5 opacity-90">
+                  Recommended based on your action item: &ldquo;{highlightInfo.title}&rdquo;
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Info banner */}
       <div className="flex items-start gap-3 p-4 bg-teal-50 rounded-xl border border-teal-100">
         <Shield className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
@@ -168,15 +253,27 @@ export default function GreenFinancing() {
                 ? `${minFormatted} – ${maxFormatted}`
                 : minFormatted || maxFormatted || 'Flexible';
             const catStyle = getCatStyle(p.category);
+            const isHighlighted = matchedProductId && (p.id === matchedProductId || p.productId === matchedProductId);
 
             return (
               <div
-                key={p.id}
-                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
+                id={`product-${p.id || p.productId}`}
+                key={p.id || p.productId}
+                className={`bg-white rounded-2xl border p-6 transition-all duration-300 flex flex-col relative ${
+                  isHighlighted
+                    ? 'border-2 border-emerald-500 ring-4 ring-emerald-500/20 shadow-xl bg-gradient-to-b from-emerald-50/30 via-white to-white scale-[1.01]'
+                    : 'border-slate-200 shadow-sm hover:shadow-md'
+                }`}
               >
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-1.5">
+                    {isHighlighted && (
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 px-2.5 py-0.5 rounded-full shadow-sm">
+                        <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
+                        Best Match For You
+                      </span>
+                    )}
                     <span
                       className={`text-xs font-bold tracking-wider px-2.5 py-1 rounded-full uppercase ${catStyle.bg} ${catStyle.text}`}
                     >

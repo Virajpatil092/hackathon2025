@@ -2,8 +2,15 @@ import os
 import logging
 from typing import List, Dict, Optional, Any
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
+try:
+    from google import genai
+    from google.genai import types as genai_types
+    HAS_GENAI = True
+except ImportError:
+    genai = None
+    genai_types = None
+    HAS_GENAI = False
+
 from backend.services.carbon_services import get_carbon_service
 
 load_dotenv()
@@ -11,7 +18,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 # Default model configuration from .env or fallback
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "hack-team-aivanguard")
 LOCATION = os.getenv("GCP_LOCATION", "us-central1")
 if LOCATION == "global":
@@ -25,6 +32,9 @@ class EAIChatService:
         self._init_client()
 
     def _init_client(self):
+        if not HAS_GENAI:
+            self.client = None
+            return
         try:
             self.client = genai.Client(
                 vertexai=True,
@@ -102,18 +112,18 @@ class EAIChatService:
                 content = item.get("content")
                 if role in ["user", "model", "assistant"] and content:
                     norm_role = "user" if role == "user" else "model"
-                    contents.append(types.Content(
+                    contents.append(genai_types.Content(
                         role=norm_role,
-                        parts=[types.Part.from_text(text=content)]
+                        parts=[genai_types.Part.from_text(text=content)]
                     ))
         
-        contents.append(types.Content(
+        contents.append(genai_types.Content(
             role="user",
-            parts=[types.Part.from_text(text=message)]
+            parts=[genai_types.Part.from_text(text=message)]
         ))
 
         try:
-            config = types.GenerateContentConfig(
+            config = genai_types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 temperature=0.7,
                 max_output_tokens=1024,
