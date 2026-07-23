@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import route modules
 from backend.routes.carbon_routes import router as carbon_router
 from backend.routes.user_routes import router as user_router
+from backend.routes.chat_routes import router as chat_router
 
 
 app = FastAPI(
@@ -28,6 +29,8 @@ app.add_middleware(
 # Include routers
 app.include_router(carbon_router)
 app.include_router(user_router)
+app.include_router(chat_router)
+
 
 
 @app.get("/actuator/health", tags=["Actuator"])
