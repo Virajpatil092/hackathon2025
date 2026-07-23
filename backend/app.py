@@ -16,12 +16,24 @@ from app.api.v1.routes.products import router as products_router
 from app.crud.product import compare_products as crud_compare_products
 
 
+from contextlib import asynccontextmanager
+from backend.services.carbon_services import get_carbon_service
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load and cache files into memory strictly on warm up / start up
+    print("Warm up: Loading transaction data and MCC mappings into memory...")
+    get_carbon_service()
+    print("Warm up complete: Data files loaded into memory.")
+    yield
+
 app = FastAPI(
     title="Spring Boot Style FastAPI Application",
     description="An enterprise-ready backend mapping Spring Boot patterns to Python",
     version="1.0.0",
     docs_url="/swagger-ui",  # Customizing OpenAPI UI endpoints to feel like Springdoc
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Add CORS middleware for frontend communication
