@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import route modules
 from backend.routes.carbon_routes import router as carbon_router
 from backend.routes.user_routes import router as user_router
+from backend.routes.green_products_routes import router as green_products_router
 
 import sys
 from pathlib import Path
@@ -47,6 +48,8 @@ app.add_middleware(
 # Include routers
 app.include_router(carbon_router)
 app.include_router(user_router)
+app.include_router(green_products_router)
+app.include_router(green_products_router, prefix="/api/v1")
 app.include_router(products_router, prefix="/api/v1/green-financing/products", tags=["Green Financing"])
 
 

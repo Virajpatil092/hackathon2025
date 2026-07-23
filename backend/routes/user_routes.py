@@ -101,21 +101,31 @@ def get_dashboard_summary():
         total_emissions = footprint.get('kgThisMonth', 620)
         monthly_target = 500
         target_progress = (total_emissions / monthly_target * 100) if monthly_target > 0 else 0
-        potential_savings = sum(cat['kg'] * 0.3 for cat in footprint.get('categoryBreakdown', []))  # 30% reduction potential
+        potential_savings = sum(cat.get('kg', 0) * 0.3 for cat in footprint.get('categoryBreakdown', []))  # 30% reduction potential
+        
+        # Get active green products count from greenProductsService
+        try:
+            from ..services.greenProductsService import get_available_green_products
+            available_products = get_available_green_products()
+            green_products_count = len(available_products)
+        except Exception:
+            green_products_count = 4
+
+        recommendations_count = len(get_recommendations())
         
         return {
-            "totalEmissions": total_emissions,
+            "totalEmissions": round(total_emissions, 1),
             "emissionsUnit": "kg CO₂e",
             "emissionsChangePct": footprint.get('vsLastMonth', -2.8),
             "monthlyTarget": monthly_target,
-            "targetProgressPct": min(target_progress, 100),  # Cap at 100%
-            "activeRecommendations": 4,
+            "targetProgressPct": min(round(target_progress, 1), 100),  # Cap at 100%
+            "activeRecommendations": recommendations_count,
             "potentialSavings": round(potential_savings, 2),
             "esgScore": 72,
             "esgScoreChange": 3,
             "goalsOnTrack": 3,
             "totalGoals": 5,
-            "greenProductsAvailable": 4,
+            "greenProductsAvailable": green_products_count,
             "streakDays": 28,
         }
     except Exception as e:
@@ -172,17 +182,30 @@ def get_dashboard_trends():
 
 @router.get("/goals", response_model=List[Goal])
 def get_goals():
-    """Get user goals"""
+    """Get user goals with live emissions metrics"""
+    current_emissions = 620.0
+    try:
+        service = get_carbon_service()
+        footprint = service.calculate_carbon_footprint()
+        current_emissions = footprint.get('kgThisMonth', 620.0)
+    except Exception:
+        pass
+
+    # Goal 1 target is 500, baseline ~720
+    target_1 = 500.0
+    baseline_1 = 720.0
+    progress_1 = max(0, min(100, int((1 - (current_emissions - target_1) / (baseline_1 - target_1)) * 100))) if current_emissions > target_1 else 100
+
     return [
         {
             "id": "goal-1",
             "title": "Reduce monthly emissions to 500 kg",
-            "current": 620,
-            "target": 500,
+            "current": round(current_emissions, 1),
+            "target": target_1,
             "unit": "kg CO₂e",
             "deadline": "2026-12-31",
-            "progress": 76,
-            "status": "on-track"
+            "progress": progress_1,
+            "status": "on-track" if progress_1 >= 50 else "behind"
         },
         {
             "id": "goal-2",
