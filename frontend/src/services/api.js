@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// ESGAdvisor API Service Layer
+// DecaESG API Service Layer
 // ═══════════════════════════════════════════════════════════════════════════
 //
 // This module provides a complete API integration layer. When USE_MOCK is true,

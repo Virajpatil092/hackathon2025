@@ -52,7 +52,7 @@ def health_check():
 @app.get("/", tags=["Info"])
 def root():
     return {
-        "message": "ESG Advisor API",
+        "message": "DecaESG API",
         "version": "1.0.0",
         "docs": "/docs",
         "swagger": "/swagger-ui"

@@ -28,7 +28,7 @@ export default function Navbar({ active, onNavigate }) {
               <Leaf className="w-5 h-5 text-white" strokeWidth={2.5} />
             </div>
             <span className="text-lg font-bold text-slate-800 tracking-tight hidden sm:block">
-              ESG<span className="text-emerald-600">Advisor</span>
+              Deca<span className="text-emerald-600">ESG</span>
             </span>
           </div>
 
