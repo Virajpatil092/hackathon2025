@@ -8,7 +8,7 @@ import pandas as pd
 from pathlib import Path
 from ..services.carbon_services import get_carbon_service
 
-router = APIRouter(prefix="/api/v1", tags=["User & Dashboard"])
+router = APIRouter(prefix="", tags=["User & Dashboard"])
 
 # ─── Response Models ───────────────────────────────────────────────────────────
 
@@ -99,20 +99,22 @@ def get_dashboard_summary():
         service = get_carbon_service()
         footprint = service.calculate_carbon_footprint()
         
-        # Calculate progress and metrics
-        total_emissions = footprint.get('kgThisMonth', 620)
+        # Calculate progress and metrics with a more practical, demo-friendly scale.
+        total_emissions = footprint.get('kgThisMonth', 500)
         monthly_target = 500
-        target_progress = (total_emissions / monthly_target * 100) if monthly_target > 0 else 0
-        potential_savings = sum(cat['kg'] * 0.3 for cat in footprint.get('categoryBreakdown', []))  # 30% reduction potential
+        target_progress = (
+            100 if total_emissions <= monthly_target else max(0, round((monthly_target / total_emissions) * 100))
+        )
+        potential_savings = round(total_emissions * 0.25, 2)
         
         return {
-            "totalEmissions": total_emissions,
+            "totalEmissions": round(total_emissions, 2),
             "emissionsUnit": "kg CO₂e",
             "emissionsChangePct": footprint.get('vsLastMonth', -2.8),
             "monthlyTarget": monthly_target,
-            "targetProgressPct": min(target_progress, 100),  # Cap at 100%
+            "targetProgressPct": target_progress,
             "activeRecommendations": 4,
-            "potentialSavings": round(potential_savings, 2),
+            "potentialSavings": potential_savings,
             "esgScore": 72,
             "esgScoreChange": 3,
             "goalsOnTrack": 3,
@@ -175,15 +177,20 @@ def get_dashboard_trends():
 @router.get("/goals", response_model=List[Goal])
 def get_goals():
     """Get user goals"""
+    service = get_carbon_service()
+    footprint = service.calculate_carbon_footprint()
+    current_emissions = round(footprint.get("kgThisMonth", 500), 2)
+    goal_progress = 100 if current_emissions <= 500 else max(0, round((500 / current_emissions) * 100))
+
     return [
         {
             "id": "goal-1",
             "title": "Reduce monthly emissions to 500 kg",
-            "current": 620,
+            "current": current_emissions,
             "target": 500,
             "unit": "kg CO₂e",
             "deadline": "2026-12-31",
-            "progress": 76,
+            "progress": goal_progress,
             "status": "on-track"
         },
         {

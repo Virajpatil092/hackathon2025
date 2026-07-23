@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional
 from ..services.carbon_services import get_carbon_service
 
-router = APIRouter(prefix="/api/v1/carbon-footprint", tags=["Carbon Footprint"])
+router = APIRouter(prefix="", tags=["Carbon Footprint"])
 
 
 # ─── Response Models ───────────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ class CarbonTrendPoint(BaseModel):
 
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
-@router.get("", response_model=CarbonFootprintResponse)
+@router.get("/carbon-footprint", response_model=CarbonFootprintResponse)
 def get_carbon_footprint():
     """
     Get overall carbon footprint for the current user
@@ -69,7 +69,7 @@ def get_carbon_footprint():
         raise HTTPException(status_code=500, detail=f"Error calculating footprint: {str(e)}")
 
 
-@router.get("/trend")
+@router.get("/carbon-footprint/trend")
 def get_carbon_trend(months: int = Query(6, ge=1, le=24)):
     """
     Get carbon emissions trend over specified number of months
@@ -88,7 +88,7 @@ def get_carbon_trend(months: int = Query(6, ge=1, le=24)):
         raise HTTPException(status_code=500, detail=f"Error fetching trend: {str(e)}")
 
 
-@router.get("/categories")
+@router.get("/carbon-footprint/categories")
 def get_carbon_by_category():
     """
     Get carbon emissions breakdown by high-level category
@@ -107,7 +107,7 @@ def get_carbon_by_category():
         raise HTTPException(status_code=500, detail=f"Error fetching categories: {str(e)}")
 
 
-@router.get("/benchmarks")
+@router.get("/carbon-footprint/benchmarks")
 def get_carbon_benchmarks():
     """
     Get carbon emissions benchmarks and comparisons
@@ -127,7 +127,7 @@ def get_carbon_benchmarks():
 
 # ─── MCC Data Endpoints ────────────────────────────────────────────────────────
 
-@router.get("/mcc/distinct", response_model=List[MCCMapping])
+@router.get("/carbon-footprint/mcc/distinct", response_model=List[MCCMapping])
 def get_distinct_mcc_codes():
     """
     Get all distinct MCC codes found in transaction data
@@ -144,7 +144,7 @@ def get_distinct_mcc_codes():
         raise HTTPException(status_code=500, detail=f"Error fetching MCC codes: {str(e)}")
 
 
-@router.get("/mcc/categories")
+@router.get("/carbon-footprint/mcc/categories")
 def get_mcc_by_category():
     """
     Get distinct MCC codes grouped by high-level category
@@ -161,7 +161,7 @@ def get_mcc_by_category():
         raise HTTPException(status_code=500, detail=f"Error grouping MCCs: {str(e)}")
 
 
-@router.get("/mcc/stats")
+@router.get("/carbon-footprint/mcc/stats")
 def get_mcc_statistics():
     """
     Get statistics about MCC codes in the transaction data
