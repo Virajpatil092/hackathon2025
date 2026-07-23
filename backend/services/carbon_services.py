@@ -3,12 +3,12 @@ Carbon Footprint Service Layer
 Processes transaction data, maps MCC codes to carbon emissions, and provides analytics
 """
 
-import pandas as pd
+import csv
 import json
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # Get the project root directory
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -25,19 +25,19 @@ class CarbonFootprintService:
         self._load_transactions()
     
     def _load_mcc_carbon_mapping(self) -> Dict[str, Dict]:
-        """Load MCC to carbon emissions mapping from CSV"""
+        """Load MCC to carbon emissions mapping from CSV using built-in csv module"""
         try:
             csv_path = PROJECT_ROOT / 'mcc_carbon_mapping_europe.csv'
-            df = pd.read_csv(csv_path)
-            
-            # Create mapping dict: MCC -> {category, emission_factor}
             mapping = {}
-            for _, row in df.iterrows():
-                mcc = str(row['MCC'])
-                mapping[mcc] = {
-                    'category': row['High_Level_Category'],
-                    'emission_factor': float(row['Emission Factor (kgCO2e per EUR spent)'])
-                }
+            with open(csv_path, newline='', encoding='utf-8-sig') as handle:
+                reader = csv.DictReader(handle)
+                for row in reader:
+                    mcc = str(row.get('MCC') or '').strip()
+                    if mcc:
+                        mapping[mcc] = {
+                            'category': (row.get('High_Level_Category') or 'Other').strip(),
+                            'emission_factor': float(row.get('Emission Factor (kgCO2e per EUR spent)') or 0.5)
+                        }
             return mapping
         except Exception as e:
             print(f"Error loading MCC carbon mapping: {e}")
@@ -53,29 +53,54 @@ class CarbonFootprintService:
             print(f"Error loading MCC descriptions: {e}")
             return {}
     
+    def _parse_date(self, value: Optional[str]) -> Optional[datetime]:
+        """Parse dates from the transaction CSV using a few common formats."""
+        if not value:
+            return None
+
+        text = str(value).strip()
+        if not text:
+            return None
+
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%m/%d/%Y", "%m/%d/%Y %H:%M:%S"):
+            try:
+                return datetime.strptime(text, fmt)
+            except ValueError:
+                continue
+
+        try:
+            return datetime.fromisoformat(text)
+        except ValueError:
+            return None
+
+    def _coerce_amount(self, value) -> float:
+        """Convert currency strings like '$40.35' to a float."""
+        if value is None:
+            return 0.0
+        text = str(value).strip().replace('$', '').replace(',', '')
+        if not text:
+            return 0.0
+        try:
+            return float(text)
+        except ValueError:
+            return 0.0
+
     def _load_transactions(self):
-        """Load and cache transaction data"""
+        """Load and cache transaction data without relying on pandas."""
         try:
             csv_path = PROJECT_ROOT / 'customer_transaction_mcc_data.csv'
-            # Load with chunking to handle large files
-            df = pd.read_csv(csv_path)
-            
-            # Normalize column names to match expected format
-            df.columns = df.columns.str.lower()
-            
-            # Clean amount column - remove $ signs and convert to float
-            if 'amount' in df.columns:
-                df['amount'] = df['amount'].astype(str).str.replace('$', '').str.strip()
-                df['amount'] = pd.to_numeric(df['amount'], errors='coerce')
-            
-            # Rename columns to match expected names (with proper capitalization)
-            df = df.rename(columns={
-                'amount': 'Amount',
-                'date': 'Date',
-                'mcc': 'MCC'
-            })
-            
-            self.transactions_df = df
+            with open(csv_path, newline='', encoding='utf-8-sig') as handle:
+                reader = csv.DictReader(handle)
+                rows = []
+                for raw_row in reader:
+                    normalized = {
+                        'Amount': self._coerce_amount(raw_row.get('amount') or raw_row.get('Amount')),
+                        'Date': (raw_row.get('date') or raw_row.get('Date') or '').strip(),
+                        'MCC': (raw_row.get('mcc') or raw_row.get('MCC') or '').strip(),
+                    }
+                    rows.append(normalized)
+
+            self.transactions_df = rows
             print(f"Loaded {len(self.transactions_df)} transactions")
         except Exception as e:
             print(f"Error loading transactions: {e}")
@@ -83,204 +108,246 @@ class CarbonFootprintService:
     
     def get_distinct_mcc_codes(self) -> List[Dict]:
         """
-        Get distinct MCC codes from transactions with their details and carbon mapping
-        Returns: List of dicts with MCC, description, category, emission_factor, transaction_count
+        Get distinct MCC codes from transactions with their details and carbon mapping.
+        Returns a list of dicts with MCC, description, category, emission_factor, and transaction count.
         """
-        if self.transactions_df is None or 'MCC' not in self.transactions_df.columns:
+        if not self.transactions_df:
             return []
-        
-        distinct_mccs = defaultdict(dict)
-        
-        # Group by MCC and count
-        mcc_counts = self.transactions_df.groupby('MCC').size()
-        
-        for mcc, count in mcc_counts.items():
-            mcc_str = str(int(mcc)) if isinstance(mcc, float) else str(mcc)
-            
-            # Get MCC details from carbon mapping
-            carbon_info = self.mcc_carbon_map.get(mcc_str, {})
-            
-            # Get MCC description
-            description = self.mcc_descriptions.get(mcc_str, 'Unknown')
-            
-            distinct_mccs[mcc_str] = {
-                'mcc_code': mcc_str,
+
+        counts = defaultdict(int)
+        for row in self.transactions_df:
+            mcc = str(row.get('MCC', '')).strip()
+            if mcc:
+                counts[mcc] += 1
+
+        distinct_mccs = []
+        for mcc, count in sorted(counts.items()):
+            carbon_info = self.mcc_carbon_map.get(mcc, {})
+            description = self.mcc_descriptions.get(mcc, 'Unknown')
+            distinct_mccs.append({
+                'mcc_code': mcc,
                 'description': description,
                 'high_level_category': carbon_info.get('category', 'Other'),
                 'emission_factor': carbon_info.get('emission_factor', 0.5),
                 'transaction_count': int(count)
-            }
-        
-        return list(distinct_mccs.values())
-    
+            })
+
+        return distinct_mccs
+
     def get_mcc_by_category(self) -> Dict[str, List[Dict]]:
-        """
-        Get distinct MCCs grouped by high-level category
-        Returns: Dict with category as key and list of MCCs as value
-        """
-        mcc_list = self.get_distinct_mcc_codes()
+        """Group distinct MCCs by their high-level category."""
         categorized = defaultdict(list)
-        
-        for mcc_info in mcc_list:
-            category = mcc_info['high_level_category']
-            categorized[category].append(mcc_info)
-        
+        for mcc_info in self.get_distinct_mcc_codes():
+            categorized[mcc_info['high_level_category']].append(mcc_info)
         return dict(categorized)
-    
+
     def calculate_carbon_footprint(self) -> Dict:
-        """
-        Calculate total carbon footprint from all transactions
-        Returns: Dict with total emissions, monthly data, and category breakdown
-        """
-        if self.transactions_df is None:
+        """Calculate total carbon footprint from all transactions."""
+        if not self.transactions_df:
             return self._get_empty_footprint()
-        
-        required_cols = ['MCC', 'Amount', 'Date']
-        if not all(col in self.transactions_df.columns for col in required_cols):
-            return self._get_empty_footprint()
-        
-        df = self.transactions_df.copy()
-        
-        # Ensure Amount is numeric
-        df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
-        df = df.dropna(subset=['Amount'])
-        
-        # Convert MCC to string for mapping lookup
-        df['MCC'] = df['MCC'].astype(str).str.strip()
-        
-        # Map carbon emissions
-        df['Category'] = df['MCC'].map(
-            lambda mcc: self.mcc_carbon_map.get(mcc, {}).get('category', 'Other')
-        )
-        df['Emission_Factor'] = df['MCC'].map(
-            lambda mcc: self.mcc_carbon_map.get(mcc, {}).get('emission_factor', 0.5)
-        )
-        
-        # Calculate emissions
-        df['CO2e_kg'] = df['Amount'] * df['Emission_Factor']
-        
-        # Parse dates
-        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-        df = df.dropna(subset=['Date'])
-        
-        # Calculate totals by category
-        category_totals = df.groupby('Category')['CO2e_kg'].sum().to_dict()
-        
-        # Calculate monthly totals
-        df['YearMonth'] = df['Date'].dt.to_period('M')
-        monthly_totals = df.groupby('YearMonth')['CO2e_kg'].sum()
-        
-        # Get current month total
-        current_month = pd.Period(datetime.now(), freq='M')
-        kg_this_month = monthly_totals.get(current_month, 0)
-        kg_last_month = monthly_totals.get(current_month - 1, 0)
-        
-        # Calculate percentage change
-        vs_last_month = (
-            ((kg_this_month - kg_last_month) / kg_last_month * 100) 
-            if kg_last_month > 0 else 0
-        )
-        
-        # Prepare category breakdown (percentages)
-        total_emissions = df['CO2e_kg'].sum()
+
+        category_totals = defaultdict(float)
+        monthly_totals = defaultdict(float)
+        total_emissions = 0.0
+        valid_transactions = 0
+
+        for row in self.transactions_df:
+            mcc = str(row.get('MCC', '')).strip()
+            amount = self._coerce_amount(row.get('Amount'))
+            if amount <= 0:
+                continue
+
+            carbon_info = self.mcc_carbon_map.get(mcc, {})
+            emission_factor = carbon_info.get('emission_factor', 0.5)
+            category = carbon_info.get('category', 'Other')
+            co2e = amount * emission_factor
+
+            category_totals[category] += co2e
+            total_emissions += co2e
+            valid_transactions += 1
+
+            parsed_date = self._parse_date(row.get('Date'))
+            if parsed_date is not None:
+                month_key = parsed_date.strftime('%Y-%m')
+                monthly_totals[month_key] += co2e
+
+        # Dynamically set current month as the latest month in data
+        sorted_months = sorted(monthly_totals.keys())
+        if sorted_months:
+            current_month = sorted_months[-1]
+            previous_month = sorted_months[-2] if len(sorted_months) > 1 else current_month
+        else:
+            today = datetime.now()
+            current_month = today.strftime('%Y-%m')
+            previous_month = current_month
+
+        current_month_total = monthly_totals.get(current_month, 0.0)
+        previous_month_total = monthly_totals.get(previous_month, 0.0) if len(sorted_months) > 1 else 0.0
+
+        vs_last_month = ((current_month_total - previous_month_total) / previous_month_total * 100) if previous_month_total > 0 else 0.0
+
         category_breakdown = [
             {
                 'label': cat,
                 'value': round((emissions / total_emissions * 100) if total_emissions > 0 else 0, 1),
                 'kg': round(emissions, 2),
-                'emission_factor': category_totals.get(cat, 0)
+                'emission_factor': round(emissions, 2)
             }
-            for cat, emissions in sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+            for cat, emissions in sorted(category_totals.items(), key=lambda item: item[1], reverse=True)
         ]
-        
-        # Six month trend
-        last_six_months = monthly_totals.iloc[-6:] if len(monthly_totals) >= 6 else monthly_totals
+
         six_month_trend = [
-            {'month': str(period), 'value': round(value, 2)}
-            for period, value in last_six_months.items()
+            {'month': month_key, 'value': round(monthly_totals[month_key], 2)}
+            for month_key in sorted_months[-6:]
         ]
-        
+
+        # Calculate benchmarks
+        benchmarks = self.get_carbon_benchmarks_for_footprint(current_month_total)
+        vs_national_average = benchmarks['comparison']['vsNationalAverage']
+
+        # Calculate weekly breakdown for the current month
+        weekly_data = defaultdict(lambda: defaultdict(float))
+        for wk in ['W1', 'W2', 'W3', 'W4']:
+            for cat in ['transport', 'food', 'utilities', 'travel']:
+                weekly_data[wk][cat] = 0.0
+
+        for row in self.transactions_df:
+            parsed_date = self._parse_date(row.get('Date'))
+            if parsed_date is None:
+                continue
+            month_key = parsed_date.strftime('%Y-%m')
+            if month_key != current_month:
+                continue
+
+            amount = self._coerce_amount(row.get('Amount'))
+            if amount <= 0:
+                continue
+
+            mcc = str(row.get('MCC', '')).strip()
+            carbon_info = self.mcc_carbon_map.get(mcc, {})
+            emission_factor = carbon_info.get('emission_factor', 0.5)
+            category_lower = carbon_info.get('category', 'Other').lower()
+            co2e = amount * emission_factor
+
+            day = parsed_date.day
+            if day <= 7:
+                wk = 'W1'
+            elif day <= 14:
+                wk = 'W2'
+            elif day <= 21:
+                wk = 'W3'
+            else:
+                wk = 'W4'
+
+            if 'trans' in category_lower or 'fuel' in category_lower:
+                sub_cat = 'transport'
+            elif 'dine' in category_lower or 'food' in category_lower or 'grocer' in category_lower:
+                sub_cat = 'food'
+            elif 'util' in category_lower:
+                sub_cat = 'utilities'
+            else:
+                sub_cat = 'travel'
+
+            weekly_data[wk][sub_cat] += co2e
+
+        weekly_breakdown = [
+            {
+                'week': wk,
+                'transport': round(weekly_data[wk]['transport'], 2),
+                'food': round(weekly_data[wk]['food'], 2),
+                'utilities': round(weekly_data[wk]['utilities'], 2),
+                'travel': round(weekly_data[wk]['travel'], 2)
+            }
+            for wk in ['W1', 'W2', 'W3', 'W4']
+        ]
+
         return {
-            'kgThisMonth': round(kg_this_month, 2),
-            'kgLastMonth': round(kg_last_month, 2),
+            'kgThisMonth': round(current_month_total, 2),
+            'kgLastMonth': round(previous_month_total, 2),
             'vsLastMonth': round(vs_last_month, 1),
-            'topEmissionCategory': (
-                category_breakdown[0]['label'] if category_breakdown else 'N/A'
-            ),
+            'vsNationalAverage': vs_national_average,
+            'topEmissionCategory': category_breakdown[0]['label'] if category_breakdown else 'N/A',
             'categoryBreakdown': category_breakdown,
             'sixMonthTrend': six_month_trend,
             'totalEmissions': round(total_emissions, 2),
-            'transactionCount': len(df)
+            'transactionCount': valid_transactions,
+            'benchmarks': benchmarks,
+            'weeklyBreakdown': weekly_breakdown
         }
-    
+
     def get_carbon_by_category(self) -> Dict:
-        """Get carbon emissions breakdown by category"""
-        if self.transactions_df is None:
+        """Get carbon emissions breakdown by category."""
+        if not self.transactions_df:
             return {}
-        
-        df = self.transactions_df.copy()
-        df['MCC'] = df['MCC'].astype(str).str.strip()
-        
-        df['Category'] = df['MCC'].map(
-            lambda mcc: self.mcc_carbon_map.get(mcc, {}).get('category', 'Other')
-        )
-        df['Emission_Factor'] = df['MCC'].map(
-            lambda mcc: self.mcc_carbon_map.get(mcc, {}).get('emission_factor', 0.5)
-        )
-        df['CO2e_kg'] = df['Amount'] * df['Emission_Factor']
-        
-        category_data = df.groupby('Category').agg({
-            'CO2e_kg': ['sum', 'mean', 'count'],
-            'Amount': 'sum'
-        }).round(2)
-        
+
+        category_groups = defaultdict(list)
+        for row in self.transactions_df:
+            mcc = str(row.get('MCC', '')).strip()
+            amount = self._coerce_amount(row.get('Amount'))
+            if amount <= 0:
+                continue
+            carbon_info = self.mcc_carbon_map.get(mcc, {})
+            category = carbon_info.get('category', 'Other')
+            emission_factor = carbon_info.get('emission_factor', 0.5)
+            category_groups[category].append((amount, amount * emission_factor))
+
         result = {}
-        for category, group in df.groupby('Category'):
-            total_co2 = group['CO2e_kg'].sum()
+        for category, values in category_groups.items():
+            total_spent = sum(value[0] for value in values)
+            total_co2 = sum(value[1] for value in values)
             result[category] = {
                 'totalCO2e': round(total_co2, 2),
-                'avgCO2ePerTransaction': round(group['CO2e_kg'].mean(), 2),
-                'transactionCount': len(group),
-                'totalSpent': round(group['Amount'].sum(), 2)
+                'avgCO2ePerTransaction': round(total_co2 / len(values), 2) if values else 0.0,
+                'transactionCount': len(values),
+                'totalSpent': round(total_spent, 2)
             }
-        
+
         return result
-    
+
     def get_carbon_trend(self, months: int = 6) -> List[Dict]:
-        """
-        Get carbon emissions trend over specified number of months
-        """
-        if self.transactions_df is None:
+        """Get carbon emissions trend over the last months."""
+        if not self.transactions_df:
             return []
-        
-        df = self.transactions_df.copy()
-        df['MCC'] = df['MCC'].astype(str).str.strip()
-        
-        df['Category'] = df['MCC'].map(
-            lambda mcc: self.mcc_carbon_map.get(mcc, {}).get('category', 'Other')
-        )
-        df['Emission_Factor'] = df['MCC'].map(
-            lambda mcc: self.mcc_carbon_map.get(mcc, {}).get('emission_factor', 0.5)
-        )
-        df['CO2e_kg'] = df['Amount'] * df['Emission_Factor']
-        
-        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-        df = df.dropna(subset=['Date'])
-        
-        df['YearMonth'] = df['Date'].dt.to_period('M')
-        
-        # Get trend data by category
-        trend_data = df.groupby(['YearMonth', 'Category'])['CO2e_kg'].sum().unstack(fill_value=0)
-        
+
+        monthly_categories = defaultdict(lambda: defaultdict(float))
+        for row in self.transactions_df:
+            mcc = str(row.get('MCC', '')).strip()
+            amount = self._coerce_amount(row.get('Amount'))
+            if amount <= 0:
+                continue
+            carbon_info = self.mcc_carbon_map.get(mcc, {})
+            category = carbon_info.get('category', 'Other')
+            emission_factor = carbon_info.get('emission_factor', 0.5)
+            parsed_date = self._parse_date(row.get('Date'))
+            if parsed_date is None:
+                continue
+            month_key = parsed_date.strftime('%Y-%m')
+            monthly_categories[month_key][category] += amount * emission_factor
+
         result = []
-        for year_month, row in trend_data.iterrows():
+        for month_key in sorted(monthly_categories.keys()):
             result.append({
-                'month': str(year_month),
-                'data': {cat: round(val, 2) for cat, val in row.items()}
+                'month': month_key,
+                'data': {cat: round(value, 2) for cat, value in monthly_categories[month_key].items()}
             })
-        
+
         return result[-months:] if len(result) > months else result
     
+    def get_carbon_benchmarks_for_footprint(self, your_footprint: float) -> Dict:
+        """Calculate carbon footprint benchmarks for a given footprint value"""
+        return {
+            'yourFootprint': round(your_footprint, 2),
+            'nationalAverage': round(your_footprint * 1.34, 2),  # Assuming 34% above average
+            'euTarget': round(your_footprint * 0.81, 2),  # EU average target
+            'parisAgreementTarget': round(your_footprint * 0.69, 2),  # Stricter target
+            'maxScale': round(max(your_footprint * 1.5, 1000), 0),
+            'comparison': {
+                'vsNationalAverage': round((your_footprint / (your_footprint * 1.34) - 1) * 100, 1) if your_footprint > 0 else 0.0,
+                'vsEUTarget': round((your_footprint / (your_footprint * 0.81) - 1) * 100, 1) if your_footprint > 0 else 0.0,
+                'vsParisTarget': round((your_footprint / (your_footprint * 0.69) - 1) * 100, 1) if your_footprint > 0 else 0.0
+            }
+        }
+
     def get_carbon_benchmarks(self) -> Dict:
         """Get carbon emissions benchmarks (individual vs averages)"""
         footprint = self.calculate_carbon_footprint()
@@ -289,19 +356,7 @@ class CarbonFootprintService:
             return {}
         
         your_footprint = footprint.get('kgThisMonth', 0)
-        
-        return {
-            'yourFootprint': round(your_footprint, 2),
-            'nationalAverage': round(your_footprint * 1.34, 2),  # Assuming 34% above average
-            'euTarget': round(your_footprint * 0.81, 2),  # EU average target
-            'parisAgreementTarget': round(your_footprint * 0.69, 2),  # Stricter target
-            'maxScale': round(max(your_footprint * 1.5, 1000), 0),
-            'comparison': {
-                'vsNationalAverage': round((your_footprint / (your_footprint * 1.34) - 1) * 100, 1),
-                'vsEUTarget': round((your_footprint / (your_footprint * 0.81) - 1) * 100, 1),
-                'vsParisTarget': round((your_footprint / (your_footprint * 0.69) - 1) * 100, 1)
-            }
-        }
+        return self.get_carbon_benchmarks_for_footprint(your_footprint)
     
     def _get_empty_footprint(self) -> Dict:
         """Return empty footprint structure"""
@@ -309,11 +364,17 @@ class CarbonFootprintService:
             'kgThisMonth': 0,
             'kgLastMonth': 0,
             'vsLastMonth': 0,
+            'vsNationalAverage': 0,
             'topEmissionCategory': 'N/A',
             'categoryBreakdown': [],
             'sixMonthTrend': [],
             'totalEmissions': 0,
-            'transactionCount': 0
+            'transactionCount': 0,
+            'benchmarks': self.get_carbon_benchmarks_for_footprint(0),
+            'weeklyBreakdown': [
+                {'week': wk, 'transport': 0, 'food': 0, 'utilities': 0, 'travel': 0}
+                for wk in ['W1', 'W2', 'W3', 'W4']
+            ]
         }
 
 

@@ -1,4 +1,4 @@
-// Recharts-based chart components for ESGAdvisor.
+// Recharts-based chart components for DecaESG.
 // Each chart is a reusable wrapper with consistent styling.
 
 import {

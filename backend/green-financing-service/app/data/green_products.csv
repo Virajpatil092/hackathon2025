@@ -1,0 +1,5 @@
+id,name,description,rate,min_amount,max_amount,term,features
+1,Solar Home Loan,Low-rate loan for residential solar installations.,3.5,1000.0,50000.0,"5-15 years","[""Low interest"", ""Flexible repayment"", ""Green subsidy""]"
+2,Energy Efficient Retrofit,Financing for building energy-efficiency upgrades.,2.9,5000.0,200000.0,"3-10 years","[""Performance-based"", ""Long term"", ""Low fees""]"
+3,EV Fleet Financing,Tailored loans for electric vehicle fleet purchases.,4.1,20000.0,1000000.0,"2-7 years","[""Bulk discounts"", ""Maintenance package"", ""CO2 tracking""]"
+4,Green SME Growth Loan,Working capital for small businesses pursuing sustainable projects.,5.0,5000.0,250000.0,"1-5 years","[""Fast approval"", ""Advisory support"", ""Flexible terms""]"

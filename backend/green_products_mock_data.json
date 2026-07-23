@@ -1,0 +1,1149 @@
+{
+  "metadata": {
+    "apiVersion": "1.0",
+    "generatedFor": "ESG Advisor - Green Products Catalog",
+    "organization": "Meridian Bank",
+    "lastUpdated": "2026-07-23",
+    "currency": "INR",
+    "totalProducts": 20,
+    "customerTypes": [
+      "INDIVIDUAL",
+      "BUSINESS"
+    ]
+  },
+  "products": [
+    {
+      "productId": "GRP-IND-001",
+      "productCode": "GHL-RES-01",
+      "productName": "Green Home Loan",
+      "customerType": "INDIVIDUAL",
+      "category": "LOAN",
+      "subCategory": "GREEN_MORTGAGE",
+      "description": "Preferential-rate home loan for purchase or construction of IGBC/GRIHA certified green-rated residential properties.",
+      "eligibility": {
+        "minAge": 21,
+        "maxAge": 65,
+        "minIncomeAnnual": 600000,
+        "employmentType": [
+          "SALARIED",
+          "SELF_EMPLOYED"
+        ],
+        "creditScoreMin": 700,
+        "residency": "INDIA"
+      },
+      "financials": {
+        "interestRateMin": 8.15,
+        "interestRateMax": 8.85,
+        "rateType": "FLOATING",
+        "standardRateDelta": -0.10,
+        "loanAmountMin": 500000,
+        "loanAmountMax": 50000000,
+        "tenureMonthsMin": 60,
+        "tenureMonthsMax": 360,
+        "processingFeePercent": 0.5,
+        "prepaymentCharges": "NIL_FOR_FLOATING"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "IGBC Green Homes",
+          "GRIHA 3-star and above",
+          "EDGE Certified"
+        ],
+        "esgCategory": "Green Buildings",
+        "estimatedAnnualCO2ReductionKg": 1200,
+        "sdgAlignment": [
+          "SDG 7",
+          "SDG 11",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "KYC documents",
+        "Income proof",
+        "Green building certificate",
+        "Property valuation report"
+      ],
+      "features": [
+        "Doorstep document collection",
+        "Balance transfer facility",
+        "Top-up loan available",
+        "Free property insurance for year 1"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-04-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-IND-002",
+      "productCode": "EVL-PER-02",
+      "productName": "Electric Vehicle Loan",
+      "customerType": "INDIVIDUAL",
+      "category": "LOAN",
+      "subCategory": "EV_FINANCE",
+      "description": "Financing for purchase of new electric two-wheelers, four-wheelers and commercial EVs for personal use.",
+      "eligibility": {
+        "minAge": 21,
+        "maxAge": 60,
+        "minIncomeAnnual": 300000,
+        "employmentType": [
+          "SALARIED",
+          "SELF_EMPLOYED"
+        ],
+        "creditScoreMin": 680,
+        "residency": "INDIA"
+      },
+      "financials": {
+        "interestRateMin": 7.75,
+        "interestRateMax": 9.25,
+        "rateType": "FIXED",
+        "standardRateDelta": -0.25,
+        "loanAmountMin": 50000,
+        "loanAmountMax": 2500000,
+        "tenureMonthsMin": 12,
+        "tenureMonthsMax": 84,
+        "processingFeePercent": 0.4,
+        "prepaymentCharges": "2% ON OUTSTANDING PRINCIPAL"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "FAME II registered vehicle",
+          "Zero tailpipe emission"
+        ],
+        "esgCategory": "Clean Transportation",
+        "estimatedAnnualCO2ReductionKg": 900,
+        "sdgAlignment": [
+          "SDG 11",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "KYC documents",
+        "Income proof",
+        "Vehicle proforma invoice",
+        "Driving license"
+      ],
+      "features": [
+        "Up to 100% on-road financing",
+        "Quick 24-hour approval",
+        "No foreclosure charges after 12 EMIs"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2022-09-15",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-IND-003",
+      "productCode": "SOL-RES-03",
+      "productName": "Rooftop Solar Loan",
+      "customerType": "INDIVIDUAL",
+      "category": "LOAN",
+      "subCategory": "RENEWABLE_ENERGY",
+      "description": "Unsecured loan for installation of rooftop solar PV systems for residential use, including subsidy-linked financing under PM Surya Ghar Yojana.",
+      "eligibility": {
+        "minAge": 21,
+        "maxAge": 65,
+        "minIncomeAnnual": 250000,
+        "employmentType": [
+          "SALARIED",
+          "SELF_EMPLOYED",
+          "RETIRED"
+        ],
+        "creditScoreMin": 650,
+        "residency": "INDIA"
+      },
+      "financials": {
+        "interestRateMin": 9.5,
+        "interestRateMax": 11.0,
+        "rateType": "FIXED",
+        "standardRateDelta": -0.5,
+        "loanAmountMin": 50000,
+        "loanAmountMax": 1000000,
+        "tenureMonthsMin": 12,
+        "tenureMonthsMax": 120,
+        "processingFeePercent": 1.0,
+        "prepaymentCharges": "NIL"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "MNRE empanelled vendor installation"
+        ],
+        "esgCategory": "Renewable Energy",
+        "estimatedAnnualCO2ReductionKg": 1500,
+        "sdgAlignment": [
+          "SDG 7",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "KYC documents",
+        "Income proof",
+        "Vendor quotation",
+        "Property ownership proof"
+      ],
+      "features": [
+        "Subsidy adjustment assistance",
+        "Net-metering guidance",
+        "Collateral free up to ₹5 lakh"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2024-02-10",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-IND-004",
+      "productCode": "GFD-DEP-04",
+      "productName": "Green Fixed Deposit",
+      "customerType": "INDIVIDUAL",
+      "category": "DEPOSIT",
+      "subCategory": "GREEN_FD",
+      "description": "Fixed deposit where funds are earmarked exclusively for financing the bank's renewable energy and green infrastructure loan book.",
+      "eligibility": {
+        "minAge": 18,
+        "maxAge": null,
+        "minIncomeAnnual": null,
+        "employmentType": [
+          "ANY"
+        ],
+        "creditScoreMin": null,
+        "residency": "INDIA_AND_NRI"
+      },
+      "financials": {
+        "interestRateMin": 6.75,
+        "interestRateMax": 7.4,
+        "rateType": "FIXED",
+        "standardRateDelta": 0.1,
+        "loanAmountMin": 10000,
+        "loanAmountMax": 10000000,
+        "tenureMonthsMin": 12,
+        "tenureMonthsMax": 60,
+        "processingFeePercent": 0,
+        "prepaymentCharges": "1% PREMATURE WITHDRAWAL PENALTY"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Green Deposit Framework - RBI 2023 aligned"
+        ],
+        "esgCategory": "Sustainable Finance Mobilisation",
+        "estimatedAnnualCO2ReductionKg": null,
+        "sdgAlignment": [
+          "SDG 7",
+          "SDG 9",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "KYC documents"
+      ],
+      "features": [
+        "Additional 0.10% for senior citizens",
+        "Annual impact report to depositor",
+        "Auto-renewal option"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-06-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-IND-005",
+      "productCode": "GCC-CRD-05",
+      "productName": "EcoRewards Green Credit Card",
+      "customerType": "INDIVIDUAL",
+      "category": "CARD",
+      "subCategory": "GREEN_CREDIT_CARD",
+      "description": "Credit card made from recycled PVC that offers accelerated reward points on sustainable spends and carbon footprint tracking.",
+      "eligibility": {
+        "minAge": 21,
+        "maxAge": 65,
+        "minIncomeAnnual": 400000,
+        "employmentType": [
+          "SALARIED",
+          "SELF_EMPLOYED"
+        ],
+        "creditScoreMin": 720,
+        "residency": "INDIA"
+      },
+      "financials": {
+        "interestRateMin": 3.0,
+        "interestRateMax": 3.5,
+        "rateType": "MONTHLY_REVOLVING",
+        "standardRateDelta": 0,
+        "loanAmountMin": 50000,
+        "loanAmountMax": 1000000,
+        "tenureMonthsMin": null,
+        "tenureMonthsMax": null,
+        "processingFeePercent": null,
+        "prepaymentCharges": "NA"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Card made of 85% recycled PVC"
+        ],
+        "esgCategory": "Sustainable Lifestyle",
+        "estimatedAnnualCO2ReductionKg": 15,
+        "sdgAlignment": [
+          "SDG 12",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "KYC documents",
+        "Income proof"
+      ],
+      "features": [
+        "5x reward points on EV charging & solar purchases",
+        "In-app carbon footprint tracker",
+        "1 tree planted per ₹10,000 spent",
+        "Annual fee waived on ₹2L+ spend"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2024-11-20",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-IND-006",
+      "productCode": "ESGF-INV-06",
+      "productName": "ESG Advantage Mutual Fund SIP",
+      "customerType": "INDIVIDUAL",
+      "category": "INVESTMENT",
+      "subCategory": "ESG_MUTUAL_FUND",
+      "description": "Bank-distributed mutual fund scheme investing in companies with strong ESG scores, offered via SIP or lumpsum.",
+      "eligibility": {
+        "minAge": 18,
+        "maxAge": null,
+        "minIncomeAnnual": null,
+        "employmentType": [
+          "ANY"
+        ],
+        "creditScoreMin": null,
+        "residency": "INDIA_AND_NRI"
+      },
+      "financials": {
+        "interestRateMin": null,
+        "interestRateMax": null,
+        "rateType": "MARKET_LINKED",
+        "standardRateDelta": null,
+        "loanAmountMin": 500,
+        "loanAmountMax": null,
+        "tenureMonthsMin": 12,
+        "tenureMonthsMax": null,
+        "processingFeePercent": 1.0,
+        "prepaymentCharges": "1% EXIT LOAD IF REDEEMED WITHIN 12 MONTHS"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "SEBI ESG fund category compliant"
+        ],
+        "esgCategory": "Sustainable Investment",
+        "estimatedAnnualCO2ReductionKg": null,
+        "sdgAlignment": [
+          "SDG 8",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "KYC documents",
+        "PAN card",
+        "Bank mandate for SIP"
+      ],
+      "features": [
+        "Minimum SIP ₹500/month",
+        "Quarterly ESG impact factsheet",
+        "Zero SIP setup fee"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2022-01-15",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-IND-007",
+      "productCode": "GHI-RES-07",
+      "productName": "Green Home Improvement Loan",
+      "customerType": "INDIVIDUAL",
+      "category": "LOAN",
+      "subCategory": "ENERGY_EFFICIENCY",
+      "description": "Loan for retrofitting existing homes with energy-efficient appliances, insulation, rainwater harvesting, and solar water heaters.",
+      "eligibility": {
+        "minAge": 21,
+        "maxAge": 65,
+        "minIncomeAnnual": 300000,
+        "employmentType": [
+          "SALARIED",
+          "SELF_EMPLOYED"
+        ],
+        "creditScoreMin": 680,
+        "residency": "INDIA"
+      },
+      "financials": {
+        "interestRateMin": 9.0,
+        "interestRateMax": 10.5,
+        "rateType": "FIXED",
+        "standardRateDelta": -0.3,
+        "loanAmountMin": 50000,
+        "loanAmountMax": 750000,
+        "tenureMonthsMin": 12,
+        "tenureMonthsMax": 84,
+        "processingFeePercent": 0.75,
+        "prepaymentCharges": "NIL"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "BEE 4-star and above rated appliances"
+        ],
+        "esgCategory": "Energy Efficiency",
+        "estimatedAnnualCO2ReductionKg": 400,
+        "sdgAlignment": [
+          "SDG 7",
+          "SDG 12"
+        ]
+      },
+      "requiredDocuments": [
+        "KYC documents",
+        "Income proof",
+        "Contractor estimate/quotation"
+      ],
+      "features": [
+        "Disbursement in tranches",
+        "No collateral required"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-08-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-IND-008",
+      "productCode": "GRB-BND-08",
+      "productName": "Sovereign & Corporate Green Bond Access",
+      "customerType": "INDIVIDUAL",
+      "category": "INVESTMENT",
+      "subCategory": "GREEN_BOND",
+      "description": "Retail access to Sovereign Green Bonds and AAA-rated corporate green bonds through the bank's demat platform.",
+      "eligibility": {
+        "minAge": 18,
+        "maxAge": null,
+        "minIncomeAnnual": null,
+        "employmentType": [
+          "ANY"
+        ],
+        "creditScoreMin": null,
+        "residency": "INDIA"
+      },
+      "financials": {
+        "interestRateMin": 7.1,
+        "interestRateMax": 7.6,
+        "rateType": "FIXED_COUPON",
+        "standardRateDelta": null,
+        "loanAmountMin": 1000,
+        "loanAmountMax": null,
+        "tenureMonthsMin": 60,
+        "tenureMonthsMax": 120,
+        "processingFeePercent": 0.25,
+        "prepaymentCharges": "NA - TRADABLE ON EXCHANGE"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "RBI Sovereign Green Bond Framework",
+          "Climate Bonds Initiative certified (for corporate issues)"
+        ],
+        "esgCategory": "Green Fixed Income",
+        "estimatedAnnualCO2ReductionKg": null,
+        "sdgAlignment": [
+          "SDG 7",
+          "SDG 9",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "Demat account",
+        "KYC documents"
+      ],
+      "features": [
+        "Listed and tradable on NSE/BSE",
+        "Half-yearly coupon payout"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-02-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-001",
+      "productCode": "SLL-BUS-01",
+      "productName": "Sustainability-Linked Business Loan",
+      "customerType": "BUSINESS",
+      "category": "LOAN",
+      "subCategory": "SUSTAINABILITY_LINKED_LOAN",
+      "description": "Term loan for MSMEs and corporates where interest rate steps down upon achievement of pre-agreed sustainability performance targets (SPTs).",
+      "eligibility": {
+        "businessVintageYearsMin": 3,
+        "annualTurnoverMin": 10000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "LLP",
+          "PARTNERSHIP",
+          "PROPRIETORSHIP"
+        ],
+        "creditRatingMin": "BBB-",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 8.5,
+        "interestRateMax": 11.0,
+        "rateType": "FLOATING_WITH_SPT_STEPDOWN",
+        "standardRateDelta": -0.25,
+        "loanAmountMin": 2500000,
+        "loanAmountMax": 500000000,
+        "tenureMonthsMin": 36,
+        "tenureMonthsMax": 120,
+        "processingFeePercent": 0.75,
+        "prepaymentCharges": "2% IF REFINANCED WITHIN 24 MONTHS"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Third-party verified Sustainability Performance Targets",
+          "Aligned to LMA/APLMA Sustainability-Linked Loan Principles"
+        ],
+        "esgCategory": "Sustainability-Linked Finance",
+        "estimatedAnnualCO2ReductionKg": 250000,
+        "sdgAlignment": [
+          "SDG 8",
+          "SDG 9",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "Company KYC",
+        "Audited financials (3 yrs)",
+        "Board resolution",
+        "SPT verification report",
+        "GST returns"
+      ],
+      "features": [
+        "Annual SPT recertification",
+        "Margin ratchet mechanism",
+        "Dedicated ESG relationship manager"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-01-10",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-002",
+      "productCode": "REPF-BUS-02",
+      "productName": "Renewable Energy Project Finance",
+      "customerType": "BUSINESS",
+      "category": "LOAN",
+      "subCategory": "PROJECT_FINANCE",
+      "description": "Long-tenure project financing for solar, wind, and hybrid renewable energy generation projects including utility-scale IPPs.",
+      "eligibility": {
+        "businessVintageYearsMin": 2,
+        "annualTurnoverMin": 50000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "PUBLIC_LIMITED",
+          "SPV"
+        ],
+        "creditRatingMin": "BBB",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 8.75,
+        "interestRateMax": 10.75,
+        "rateType": "FLOATING",
+        "standardRateDelta": -0.2,
+        "loanAmountMin": 50000000,
+        "loanAmountMax": 5000000000,
+        "tenureMonthsMin": 60,
+        "tenureMonthsMax": 240,
+        "processingFeePercent": 0.5,
+        "prepaymentCharges": "AS PER FACILITY AGREEMENT"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Equator Principles compliant",
+          "Environmental Impact Assessment cleared",
+          "PPA with grid/discom in place"
+        ],
+        "esgCategory": "Renewable Energy Infrastructure",
+        "estimatedAnnualCO2ReductionKg": 12000000,
+        "sdgAlignment": [
+          "SDG 7",
+          "SDG 9",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "DPR (Detailed Project Report)",
+        "EIA report",
+        "PPA agreement",
+        "Land/lease documents",
+        "Company financials"
+      ],
+      "features": [
+        "Consortium/syndicated lending option",
+        "Moratorium up to 24 months",
+        "Escrow-based repayment structuring"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2021-11-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-003",
+      "productCode": "GWC-BUS-03",
+      "productName": "Green Working Capital Facility",
+      "customerType": "BUSINESS",
+      "category": "CREDIT_LINE",
+      "subCategory": "WORKING_CAPITAL",
+      "description": "Cash credit / overdraft facility at preferential pricing for businesses in green manufacturing, organic agri-processing, and clean-tech supply chains.",
+      "eligibility": {
+        "businessVintageYearsMin": 2,
+        "annualTurnoverMin": 5000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "LLP",
+          "PARTNERSHIP",
+          "PROPRIETORSHIP"
+        ],
+        "creditRatingMin": "BB+",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 9.25,
+        "interestRateMax": 11.5,
+        "rateType": "FLOATING",
+        "standardRateDelta": -0.2,
+        "loanAmountMin": 1000000,
+        "loanAmountMax": 100000000,
+        "tenureMonthsMin": 12,
+        "tenureMonthsMax": 12,
+        "processingFeePercent": 0.6,
+        "prepaymentCharges": "NA - REVOLVING FACILITY"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Business activity classified under Green Taxonomy - eligible sectors list"
+        ],
+        "esgCategory": "Green Working Capital",
+        "estimatedAnnualCO2ReductionKg": 30000,
+        "sdgAlignment": [
+          "SDG 8",
+          "SDG 12"
+        ]
+      },
+      "requiredDocuments": [
+        "Company KYC",
+        "2-year financials",
+        "GST returns",
+        "Stock & book debt statements"
+      ],
+      "features": [
+        "Annual renewal",
+        "Drawing power against stock/receivables",
+        "Digital limit tracking dashboard"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-05-20",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-004",
+      "productCode": "EVFL-BUS-04",
+      "productName": "EV Fleet Financing",
+      "customerType": "BUSINESS",
+      "category": "LOAN",
+      "subCategory": "EV_FINANCE",
+      "description": "Financing for businesses to acquire electric vehicle fleets for logistics, cab aggregation, or corporate transport.",
+      "eligibility": {
+        "businessVintageYearsMin": 1,
+        "annualTurnoverMin": 2000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "LLP",
+          "PARTNERSHIP",
+          "PROPRIETORSHIP"
+        ],
+        "creditRatingMin": "BB",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 8.25,
+        "interestRateMax": 10.0,
+        "rateType": "FIXED",
+        "standardRateDelta": -0.3,
+        "loanAmountMin": 500000,
+        "loanAmountMax": 200000000,
+        "tenureMonthsMin": 24,
+        "tenureMonthsMax": 84,
+        "processingFeePercent": 0.5,
+        "prepaymentCharges": "1.5% ON OUTSTANDING"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "FAME II registered fleet vehicles"
+        ],
+        "esgCategory": "Clean Transportation",
+        "estimatedAnnualCO2ReductionKg": 45000,
+        "sdgAlignment": [
+          "SDG 9",
+          "SDG 11",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "Company KYC",
+        "Fleet purchase order",
+        "Financials",
+        "Charging infrastructure plan"
+      ],
+      "features": [
+        "Bulk fleet discount pricing",
+        "Charging infra loan bundling available",
+        "GPS-linked asset tracking tie-up"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2024-03-05",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-005",
+      "productCode": "GTF-BUS-05",
+      "productName": "Green Trade Finance",
+      "customerType": "BUSINESS",
+      "category": "TRADE_FINANCE",
+      "subCategory": "GREEN_LC_AND_EXPORT_FINANCE",
+      "description": "Letters of credit, export packing credit, and post-shipment finance at concessional rates for exporters/importers of certified green and organic goods.",
+      "eligibility": {
+        "businessVintageYearsMin": 2,
+        "annualTurnoverMin": 10000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "PUBLIC_LIMITED",
+          "LLP"
+        ],
+        "creditRatingMin": "BBB-",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 7.5,
+        "interestRateMax": 9.5,
+        "rateType": "FLOATING",
+        "standardRateDelta": -0.2,
+        "loanAmountMin": 2000000,
+        "loanAmountMax": 300000000,
+        "tenureMonthsMin": 1,
+        "tenureMonthsMax": 12,
+        "processingFeePercent": 0.35,
+        "prepaymentCharges": "NA"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Organic/Fair Trade/FSC certification for underlying goods"
+        ],
+        "esgCategory": "Sustainable Trade",
+        "estimatedAnnualCO2ReductionKg": 8000,
+        "sdgAlignment": [
+          "SDG 8",
+          "SDG 12"
+        ]
+      },
+      "requiredDocuments": [
+        "Export/import documents",
+        "Company KYC",
+        "Certification of goods",
+        "Financials"
+      ],
+      "features": [
+        "Faster LC processing for certified exporters",
+        "FX hedging advisory included"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2022-07-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-006",
+      "productCode": "GBD-DEP-06",
+      "productName": "Corporate Green Term Deposit",
+      "customerType": "BUSINESS",
+      "category": "DEPOSIT",
+      "subCategory": "GREEN_FD",
+      "description": "Bulk/corporate term deposit product where proceeds are ring-fenced for the bank's green asset portfolio, with quarterly impact disclosures for treasury reporting.",
+      "eligibility": {
+        "businessVintageYearsMin": 0,
+        "annualTurnoverMin": null,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "PUBLIC_LIMITED",
+          "LLP",
+          "TRUST",
+          "SOCIETY"
+        ],
+        "creditRatingMin": null,
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 7.0,
+        "interestRateMax": 7.65,
+        "rateType": "FIXED",
+        "standardRateDelta": 0.1,
+        "loanAmountMin": 1000000,
+        "loanAmountMax": 1000000000,
+        "tenureMonthsMin": 6,
+        "tenureMonthsMax": 60,
+        "processingFeePercent": 0,
+        "prepaymentCharges": "1% ON PREMATURE WITHDRAWAL"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "RBI Green Deposit Framework 2023 compliant",
+          "Third-party assurance on fund allocation"
+        ],
+        "esgCategory": "Sustainable Finance Mobilisation",
+        "estimatedAnnualCO2ReductionKg": null,
+        "sdgAlignment": [
+          "SDG 9",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "Company KYC",
+        "Board resolution",
+        "Authorized signatory list"
+      ],
+      "features": [
+        "Quarterly impact & allocation report",
+        "Flexible payout - monthly/quarterly/cumulative",
+        "Treasury desk relationship support"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-06-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-007",
+      "productCode": "GLC-BUS-07",
+      "productName": "Green Equipment Leasing",
+      "customerType": "BUSINESS",
+      "category": "LEASE",
+      "subCategory": "EQUIPMENT_LEASE",
+      "description": "Operating and finance lease for energy-efficient machinery, solar equipment, and water-treatment plants for SMEs and manufacturers.",
+      "eligibility": {
+        "businessVintageYearsMin": 1,
+        "annualTurnoverMin": 3000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "LLP",
+          "PARTNERSHIP",
+          "PROPRIETORSHIP"
+        ],
+        "creditRatingMin": "BB",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 9.0,
+        "interestRateMax": 11.5,
+        "rateType": "FIXED",
+        "standardRateDelta": -0.25,
+        "loanAmountMin": 300000,
+        "loanAmountMax": 50000000,
+        "tenureMonthsMin": 24,
+        "tenureMonthsMax": 96,
+        "processingFeePercent": 0.6,
+        "prepaymentCharges": "AS PER LEASE SCHEDULE"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "BEE star-rated or equivalent efficiency certification for leased asset"
+        ],
+        "esgCategory": "Resource & Energy Efficiency",
+        "estimatedAnnualCO2ReductionKg": 60000,
+        "sdgAlignment": [
+          "SDG 9",
+          "SDG 12"
+        ]
+      },
+      "requiredDocuments": [
+        "Company KYC",
+        "Vendor quotation",
+        "Financials",
+        "Asset efficiency certificate"
+      ],
+      "features": [
+        "Option to purchase at lease end",
+        "Off-balance-sheet operating lease option",
+        "Maintenance bundling available"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2024-01-18",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-008",
+      "productCode": "GSCF-BUS-08",
+      "productName": "Green Supply Chain Finance",
+      "customerType": "BUSINESS",
+      "category": "TRADE_FINANCE",
+      "subCategory": "SUPPLY_CHAIN_FINANCE",
+      "description": "Vendor/dealer financing program giving preferential discounting rates to suppliers who meet the anchor corporate's ESG sourcing standards.",
+      "eligibility": {
+        "businessVintageYearsMin": 1,
+        "annualTurnoverMin": 2000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "LLP",
+          "PARTNERSHIP",
+          "PROPRIETORSHIP"
+        ],
+        "creditRatingMin": "ANCHOR_LINKED",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 7.75,
+        "interestRateMax": 9.75,
+        "rateType": "FLOATING",
+        "standardRateDelta": -0.2,
+        "loanAmountMin": 100000,
+        "loanAmountMax": 50000000,
+        "tenureMonthsMin": 1,
+        "tenureMonthsMax": 6,
+        "processingFeePercent": 0.3,
+        "prepaymentCharges": "NA"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Supplier ESG scorecard clearance from anchor corporate"
+        ],
+        "esgCategory": "Sustainable Supply Chain",
+        "estimatedAnnualCO2ReductionKg": 5000,
+        "sdgAlignment": [
+          "SDG 8",
+          "SDG 12"
+        ]
+      },
+      "requiredDocuments": [
+        "Vendor KYC",
+        "Anchor corporate agreement",
+        "Invoice records"
+      ],
+      "features": [
+        "Digital onboarding via anchor portal",
+        "Early payment discounting",
+        "Anchor-backed lower rates"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2023-10-11",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-009",
+      "productCode": "WMF-BUS-09",
+      "productName": "Water & Waste Management Project Loan",
+      "customerType": "BUSINESS",
+      "category": "LOAN",
+      "subCategory": "SUSTAINABLE_INFRASTRUCTURE",
+      "description": "Term loan for setting up effluent treatment plants, water recycling units, and industrial waste management infrastructure.",
+      "eligibility": {
+        "businessVintageYearsMin": 2,
+        "annualTurnoverMin": 8000000,
+        "entityType": [
+          "PRIVATE_LIMITED",
+          "PUBLIC_LIMITED",
+          "LLP"
+        ],
+        "creditRatingMin": "BBB-",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 8.9,
+        "interestRateMax": 10.9,
+        "rateType": "FLOATING",
+        "standardRateDelta": -0.2,
+        "loanAmountMin": 3000000,
+        "loanAmountMax": 250000000,
+        "tenureMonthsMin": 36,
+        "tenureMonthsMax": 144,
+        "processingFeePercent": 0.5,
+        "prepaymentCharges": "2% IF REFINANCED WITHIN 24 MONTHS"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Pollution Control Board clearance",
+          "Zero Liquid Discharge compliance where applicable"
+        ],
+        "esgCategory": "Water & Circular Economy",
+        "estimatedAnnualCO2ReductionKg": 20000,
+        "sdgAlignment": [
+          "SDG 6",
+          "SDG 12"
+        ]
+      },
+      "requiredDocuments": [
+        "DPR",
+        "PCB clearance",
+        "Company financials",
+        "Environmental compliance certificate"
+      ],
+      "features": [
+        "Moratorium up to 12 months",
+        "Technical due-diligence support from bank's ESG desk"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2022-12-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-010",
+      "productCode": "MSME-GRN-10",
+      "productName": "MSME Green Transition Loan",
+      "customerType": "BUSINESS",
+      "category": "LOAN",
+      "subCategory": "MSME_GREEN_FINANCE",
+      "description": "Collateral-light loan for micro and small enterprises to adopt cleaner production processes, energy audits, and emission-reduction upgrades.",
+      "eligibility": {
+        "businessVintageYearsMin": 1,
+        "annualTurnoverMin": 1000000,
+        "entityType": [
+          "PROPRIETORSHIP",
+          "PARTNERSHIP",
+          "LLP",
+          "PRIVATE_LIMITED"
+        ],
+        "creditRatingMin": "UNRATED_ACCEPTED",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": 9.5,
+        "interestRateMax": 12.0,
+        "rateType": "FIXED",
+        "standardRateDelta": -0.3,
+        "loanAmountMin": 200000,
+        "loanAmountMax": 10000000,
+        "tenureMonthsMin": 12,
+        "tenureMonthsMax": 60,
+        "processingFeePercent": 0.5,
+        "prepaymentCharges": "NIL"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Energy audit report from empanelled auditor"
+        ],
+        "esgCategory": "MSME Decarbonisation",
+        "estimatedAnnualCO2ReductionKg": 3500,
+        "sdgAlignment": [
+          "SDG 8",
+          "SDG 9",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "Udyam registration",
+        "KYC documents",
+        "Bank statements (12 months)",
+        "Energy audit report"
+      ],
+      "features": [
+        "Government CGTMSE credit guarantee cover eligible",
+        "Simplified digital application",
+        "Subsidized energy audit tie-up"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2024-06-01",
+      "applicableRegions": [
+        "PAN_INDIA"
+      ]
+    },
+    {
+      "productId": "GRP-BUS-011",
+      "productCode": "GBND-CORP-11",
+      "productName": "Corporate Green Bond Issuance Advisory & Underwriting",
+      "customerType": "BUSINESS",
+      "category": "INVESTMENT_BANKING",
+      "subCategory": "GREEN_BOND_ISSUANCE",
+      "description": "End-to-end advisory, structuring, and underwriting support for corporates issuing green/sustainability bonds in domestic or international markets.",
+      "eligibility": {
+        "businessVintageYearsMin": 5,
+        "annualTurnoverMin": 500000000,
+        "entityType": [
+          "PUBLIC_LIMITED",
+          "PRIVATE_LIMITED"
+        ],
+        "creditRatingMin": "A-",
+        "residency": "INDIA_REGISTERED"
+      },
+      "financials": {
+        "interestRateMin": null,
+        "interestRateMax": null,
+        "rateType": "ADVISORY_FEE_BASED",
+        "standardRateDelta": null,
+        "loanAmountMin": 100000000,
+        "loanAmountMax": 10000000000,
+        "tenureMonthsMin": 36,
+        "tenureMonthsMax": 180,
+        "processingFeePercent": 1.25,
+        "prepaymentCharges": "NA"
+      },
+      "esgCriteria": {
+        "certificationRequired": [
+          "Second Party Opinion (SPO) from approved ESG rating agency",
+          "ICMA Green Bond Principles aligned"
+        ],
+        "esgCategory": "Capital Markets - Green Finance",
+        "estimatedAnnualCO2ReductionKg": null,
+        "sdgAlignment": [
+          "SDG 9",
+          "SDG 13"
+        ]
+      },
+      "requiredDocuments": [
+        "Use-of-proceeds framework",
+        "Company financials & credit rating",
+        "Board approval",
+        "SPO report"
+      ],
+      "features": [
+        "Framework development support",
+        "Roadshow & investor connect",
+        "Post-issuance impact reporting assistance"
+      ],
+      "status": "ACTIVE",
+      "launchDate": "2021-09-01",
+      "applicableRegions": [
+        "PAN_INDIA",
+        "INTERNATIONAL_MARKETS"
+      ]
+    }
+  ]
+}

@@ -35,11 +35,14 @@ class CarbonFootprintResponse(BaseModel):
     kgThisMonth: float
     kgLastMonth: float
     vsLastMonth: float
+    vsNationalAverage: float
     topEmissionCategory: str
     categoryBreakdown: List[CategoryBreakdown]
     sixMonthTrend: List[Dict]
     totalEmissions: float
     transactionCount: int
+    benchmarks: Dict
+    weeklyBreakdown: List[Dict]
 
 
 class CarbonTrendPoint(BaseModel):
@@ -190,3 +193,11 @@ def get_mcc_statistics():
         return stats
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating stats: {str(e)}")
+
+
+@router.post("/activities")
+def log_carbon_activity(activity: Dict):
+    """
+    Log a new carbon-reducing activity
+    """
+    return {"success": True, "id": "act-new"}

@@ -1,5 +1,6 @@
+import greenProductsData from '../../../backend/green_products_mock_data.json';
 // ═══════════════════════════════════════════════════════════════════════════
-// ESGAdvisor API Service Layer
+// DecaESG API Service Layer
 // ═══════════════════════════════════════════════════════════════════════════
 //
 // This module provides a complete API integration layer. When USE_MOCK is true,
@@ -11,8 +12,8 @@
 //   2. Set VITE_USE_MOCK=false in .env
 // ═══════════════════════════════════════════════════════════════════════════
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 // ─── Endpoint Definitions ───────────────────────────────────────────────────
 // Every endpoint the application needs. Used by the real fetch layer when
@@ -46,8 +47,9 @@ export const ENDPOINTS = {
   dismissRecommendation: { method: 'GET',    path: '/recommendations/:id/dismiss' },
   applyRecommendation:   { method: 'POST',   path: '/recommendations/:id/apply' },
 
-  // Green financing
-  getGreenFinancing:     { method: 'GET',    path: '/green-financing/products' },
+  // Green financing & products
+  getGreenFinancing:     { method: 'GET',    path: '/green-products' },
+  getGreenProducts:      { method: 'GET',    path: '/green-products' },
   getGreenFinancingCompare: { method: 'GET',  path: '/green-financing/compare' },
   applyGreenProduct:     { method: 'POST',   path: '/green-financing/products/:id/apply' },
 
@@ -228,68 +230,54 @@ const mockRecommendations = [
   },
 ];
 
-const mockGreenFinancing = [
-  {
-    id: 'gf-1',
-    type: 'GREEN MORTGAGE',
-    name: 'EcoHome Green Mortgage',
-    rate: 'From 3.0% APR',
-    rateValue: 3.0,
-    description:
-      'Preferential mortgage for EPC A/B homes or energy retrofits improving efficiency by 30% or more.',
-    co2Saving: '~3 tonnes CO₂e saved/year per household',
-    badge: 'EU Taxonomy Aligned',
-    minAmount: 50000,
-    maxAmount: 500000,
-    term: '5-30 years',
-    features: ['No arrangement fee', 'Free EPC assessment', 'Cashback on completion'],
-  },
-  {
-    id: 'gf-2',
-    type: 'EV LOAN',
-    name: 'Clean Drive EV Loan',
-    rate: 'From 4.5% APR',
-    rateValue: 4.5,
-    description:
-      'Zero-paperwork loan for electric or hydrogen vehicle purchases. 75bps below our standard personal loan.',
-    co2Saving: '~2.1 tonnes CO₂e saved vs petrol/year',
-    badge: 'EU Taxonomy Aligned',
-    minAmount: 5000,
-    maxAmount: 80000,
-    term: '1-7 years',
-    features: ['Instant approval', 'No early repayment fee', 'Charging point included'],
-  },
-  {
-    id: 'gf-3',
-    type: 'SOLAR LOAN',
-    name: 'SolarBoost Home Loan',
-    rate: 'From 4.9% APR',
-    rateValue: 4.9,
-    description:
-      'Dedicated loan for residential solar panel and battery storage installation.',
-    co2Saving: '~1.5 tonnes CO₂e avoided/year',
-    badge: 'EU Taxonomy Aligned',
-    minAmount: 3000,
-    maxAmount: 50000,
-    term: '1-10 years',
-    features: ['Fixed rate', 'No early repayment fee', 'Installer network access'],
-  },
-  {
-    id: 'gf-4',
-    type: 'ESG FUND',
-    name: 'European Green Transition Fund',
-    rate: 'SFDR Article 9',
-    rateValue: 0,
-    description:
-      'EU Taxonomy-aligned fund investing in companies driving the European green transition.',
-    co2Saving: 'Portfolio 80% below MSCI Europe carbon intensity',
-    badge: 'EU Taxonomy Aligned',
-    minAmount: 100,
-    maxAmount: 1000000,
-    term: 'Open-ended',
-    features: ['Article 9 fund', 'Quarterly impact report', 'Low TER 0.35%'],
-  },
-];
+// Adapter: converts a raw product from green_products_mock_data.json into
+// the shape expected by the GreenFinancing UI component.
+function adaptGreenProduct(p) {
+  const fin = p.financials || {};
+  const esg = p.esgCriteria || {};
+
+  const rateStr = fin.interestRateMin
+    ? `${fin.interestRateMin}% – ${fin.interestRateMax}% p.a.`
+    : fin.rateType === 'ADVISORY_FEE_BASED'
+    ? 'Advisory Fee'
+    : 'N/A';
+
+  const co2Saving = esg.estimatedAnnualCO2ReductionKg
+    ? `~${esg.estimatedAnnualCO2ReductionKg.toLocaleString('en-IN')} kg CO₂e saved/year`
+    : `ESG Category: ${esg.esgCategory || 'Sustainable Finance'}`;
+
+  const badge = (esg.certificationRequired || [])[0] || esg.esgCategory || 'ESG Aligned';
+
+  let term = 'Flexible';
+  if (fin.tenureMonthsMin) {
+    const minYr = fin.tenureMonthsMin / 12;
+    const maxYr = (fin.tenureMonthsMax || fin.tenureMonthsMin) / 12;
+    term = minYr >= 1
+      ? `${Number.isInteger(minYr) ? minYr : minYr.toFixed(1)}–${Number.isInteger(maxYr) ? maxYr : maxYr.toFixed(1)} yrs`
+      : `${fin.tenureMonthsMin}–${fin.tenureMonthsMax || fin.tenureMonthsMin} mos`;
+  }
+
+  return {
+    id: p.productId,
+    type: (p.subCategory || p.category || '').replace(/_/g, ' '),
+    name: p.productName,
+    customerType: p.customerType,
+    category: p.category,
+    rate: rateStr,
+    rateValue: fin.interestRateMin || 0,
+    description: p.description,
+    co2Saving,
+    badge,
+    minAmount: fin.loanAmountMin || 0,
+    maxAmount: fin.loanAmountMax || 0,
+    term,
+    features: p.features || [],
+    sdgAlignment: esg.sdgAlignment || [],
+    status: p.status,
+  };
+}
+
+const mockGreenFinancing = (greenProductsData.products || []).map(adaptGreenProduct);
 
 const mockESGInsights = {
   radarScores: {
@@ -447,7 +435,10 @@ export async function getMCCStats() {
 
 // Recommendations
 export async function getRecommendations() {
-  if (!USE_MOCK) return apiRequest(ENDPOINTS.getRecommendations);
+  if (!USE_MOCK) {
+    const res = await apiRequest(ENDPOINTS.getRecommendations);
+    return Array.isArray(res) ? res : (res.recommendations || res.products || []);
+  }
   return mockRecommendations;
 }
 
@@ -463,7 +454,36 @@ export async function applyRecommendation(id) {
 
 // Green financing
 export async function getGreenFinancing() {
-  if (!USE_MOCK) return apiRequest(ENDPOINTS.getGreenFinancing);
+  if (!USE_MOCK) {
+    const res = await apiRequest(ENDPOINTS.getGreenFinancing);
+    const rawProducts = Array.isArray(res) ? res : (res.products || res.data || []);
+    
+    // Adapt new schema to the UI expected schema
+    return rawProducts.map(p => {
+      if (p.productId) {
+        return {
+          ...p,
+          id: p.productId,
+          type: (p.subCategory || p.category || '').replace(/_/g, ' '),
+          name: p.productName,
+          rate: p.financials?.interestRateMin ? `From ${p.financials.interestRateMin}%` : (p.financials?.rateType === 'ADVISORY_FEE_BASED' ? 'Advisory Fee' : 'N/A'),
+          rateValue: p.financials?.interestRateMin || 0,
+          description: p.description,
+          co2Saving: p.esgCriteria?.estimatedAnnualCO2ReductionKg ? `~${p.esgCriteria.estimatedAnnualCO2ReductionKg.toLocaleString()} kg CO₂e/yr` : 'ESG Aligned Impact',
+          badge: (p.esgCriteria?.certificationRequired || [])[0] || 'EU Taxonomy Aligned',
+          minAmount: p.financials?.loanAmountMin || 0,
+          maxAmount: p.financials?.loanAmountMax || 0,
+          term: p.financials?.tenureMonthsMin ? (
+            p.financials.tenureMonthsMin >= 12
+              ? `${Math.floor(p.financials.tenureMonthsMin / 12)}-${Math.floor((p.financials.tenureMonthsMax || p.financials.tenureMonthsMin) / 12)} yrs`
+              : `${p.financials.tenureMonthsMin}-${p.financials.tenureMonthsMax || p.financials.tenureMonthsMin} mos`
+          ) : 'Flexible',
+          features: p.features || [],
+        };
+      }
+      return p;
+    });
+  }
   return mockGreenFinancing;
 }
 

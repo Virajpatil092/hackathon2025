@@ -1,11 +1,9 @@
 # User & Dashboard Routes
 
 from fastapi import APIRouter, HTTPException
-from typing import List, Dict, Optional
-from datetime import datetime, timedelta
+from typing import List, Dict
+from datetime import datetime
 from pydantic import BaseModel
-import pandas as pd
-from pathlib import Path
 from ..services.carbon_services import get_carbon_service
 
 router = APIRouter(prefix="/api/v1", tags=["User & Dashboard"])
@@ -103,21 +101,31 @@ def get_dashboard_summary():
         total_emissions = footprint.get('kgThisMonth', 620)
         monthly_target = 500
         target_progress = (total_emissions / monthly_target * 100) if monthly_target > 0 else 0
-        potential_savings = sum(cat['kg'] * 0.3 for cat in footprint.get('categoryBreakdown', []))  # 30% reduction potential
+        potential_savings = sum(cat.get('kg', 0) * 0.3 for cat in footprint.get('categoryBreakdown', []))  # 30% reduction potential
+        
+        # Get active green products count from greenProductsService
+        try:
+            from ..services.greenProductsService import get_available_green_products
+            available_products = get_available_green_products()
+            green_products_count = len(available_products)
+        except Exception:
+            green_products_count = 4
+
+        recommendations_count = len(get_recommendations())
         
         return {
-            "totalEmissions": total_emissions,
+            "totalEmissions": round(total_emissions, 1),
             "emissionsUnit": "kg CO₂e",
             "emissionsChangePct": footprint.get('vsLastMonth', -2.8),
             "monthlyTarget": monthly_target,
-            "targetProgressPct": min(target_progress, 100),  # Cap at 100%
-            "activeRecommendations": 4,
+            "targetProgressPct": min(round(target_progress, 1), 100),  # Cap at 100%
+            "activeRecommendations": recommendations_count,
             "potentialSavings": round(potential_savings, 2),
             "esgScore": 72,
             "esgScoreChange": 3,
             "goalsOnTrack": 3,
             "totalGoals": 5,
-            "greenProductsAvailable": 4,
+            "greenProductsAvailable": green_products_count,
             "streakDays": 28,
         }
     except Exception as e:
@@ -174,17 +182,30 @@ def get_dashboard_trends():
 
 @router.get("/goals", response_model=List[Goal])
 def get_goals():
-    """Get user goals"""
+    """Get user goals with live emissions metrics"""
+    current_emissions = 620.0
+    try:
+        service = get_carbon_service()
+        footprint = service.calculate_carbon_footprint()
+        current_emissions = footprint.get('kgThisMonth', 620.0)
+    except Exception:
+        pass
+
+    # Goal 1 target is 500, baseline ~720
+    target_1 = 500.0
+    baseline_1 = 720.0
+    progress_1 = max(0, min(100, int((1 - (current_emissions - target_1) / (baseline_1 - target_1)) * 100))) if current_emissions > target_1 else 100
+
     return [
         {
             "id": "goal-1",
             "title": "Reduce monthly emissions to 500 kg",
-            "current": 620,
-            "target": 500,
+            "current": round(current_emissions, 1),
+            "target": target_1,
             "unit": "kg CO₂e",
             "deadline": "2026-12-31",
-            "progress": 76,
-            "status": "on-track"
+            "progress": progress_1,
+            "status": "on-track" if progress_1 >= 50 else "behind"
         },
         {
             "id": "goal-2",
@@ -294,4 +315,229 @@ def get_activity_log():
             "category": "Goals"
         },
     ]
+
+
+# ─── User Profile PATCH Endpoint ─────────────────────────────────────────────
+
+@router.patch("/user/me")
+def update_user_profile(body: Dict):
+    """Update user profile"""
+    return {
+        "id": "usr_001",
+        "name": body.get("name", "Jane Smith"),
+        "email": body.get("email", "jane.smith@example.com"),
+        "initials": "JS",
+        "company": body.get("company", "GreenTech Solutions Ltd"),
+        "role": body.get("role", "Sustainability Lead"),
+        "joinedAt": "2025-01-15",
+    }
+
+
+# ─── Recommendations Endpoints ───────────────────────────────────────────────
+
+@router.get("/recommendations")
+def get_recommendations():
+    """Get priority recommendations"""
+    return [
+        {
+            "id": "rec-1",
+            "icon": "train",
+            "title": "Switch Short-Haul Flights to Train",
+            "category": "Transport",
+            "priority": "high",
+            "description": "Short-haul flights generate approximately 20x more CO₂e per km than trains. Switching one return flight within Europe saves 200-400 kg CO₂e.",
+            "savingKg": 310,
+            "savingPct": 50,
+            "difficulty": "easy",
+            "timeframe": "1-2 weeks",
+            "ctaLabel": "Explore Rail Options",
+            "ctaLink": "#"
+        },
+        {
+            "id": "rec-2",
+            "icon": "leaf",
+            "title": "Reduce Meat Consumption",
+            "category": "Food & Drink",
+            "priority": "medium",
+            "description": "Your food spending suggests a high-meat diet. Replacing 2 meat meals/week with plant-based options cuts food emissions by approximately 25%.",
+            "savingKg": 37,
+            "savingPct": 27,
+            "difficulty": "easy",
+            "timeframe": "Immediate",
+            "ctaLabel": "Sustainable Diet Tips",
+            "ctaLink": "#"
+        },
+        {
+            "id": "rec-3",
+            "icon": "zap",
+            "title": "Switch to Renewable Energy Tariff",
+            "category": "Utilities",
+            "priority": "high",
+            "description": "Your utility provider emits above the national grid average. Switching to a 100% renewable tariff could eliminate your Scope 2 household emissions.",
+            "savingKg": 75,
+            "savingPct": 100,
+            "difficulty": "medium",
+            "timeframe": "2-4 weeks",
+            "ctaLabel": "View Green Energy Loans",
+            "ctaLink": "#"
+        },
+        {
+            "id": "rec-4",
+            "icon": "bike",
+            "title": "Cycle or Use Public Transport for Short Journeys",
+            "category": "Transport",
+            "priority": "medium",
+            "description": "Your transport spending is your #1 emission source. Replacing car trips under 5 km with cycling or public transport saves ~35% of transport emissions.",
+            "savingKg": 68,
+            "savingPct": 35,
+            "difficulty": "easy",
+            "timeframe": "Immediate",
+            "ctaLabel": "Find Bike Loans",
+            "ctaLink": "#"
+        }
+    ]
+
+
+@router.get("/recommendations/{rec_id}/dismiss")
+def dismiss_recommendation(rec_id: str):
+    """Dismiss recommendation"""
+    return {"success": True}
+
+
+@router.post("/recommendations/{rec_id}/apply")
+def apply_recommendation(rec_id: str):
+    """Apply recommendation"""
+    return {"success": True}
+
+
+# ─── ESG Insights Endpoints ──────────────────────────────────────────────────
+
+@router.get("/esg-insights")
+def get_esg_insights():
+    """Get complete ESG metrics"""
+    return {
+        "radarScores": {
+            "yourScore": { "environmental": 72, "social": 55, "governance": 68 },
+            "industryAverage": { "environmental": 58, "social": 62, "governance": 54 }
+        },
+        "scopeEmissions": {
+            "scope1": { "label": "Direct emissions", "value": 120, "color": "#16a34a" },
+            "scope2": { "label": "Purchased energy", "value": 45, "color": "#3b82f6" },
+            "scope3": { "label": "Value chain", "value": 380, "color": "#8b5cf6" }
+        },
+        "scopeTrend": [
+            { "month": "Jan", "scope1": 140, "scope2": 55, "scope3": 420 },
+            { "month": "Feb", "scope1": 135, "scope2": 52, "scope3": 410 },
+            { "month": "Mar", "scope1": 130, "scope2": 50, "scope3": 400 },
+            { "month": "Apr", "scope1": 128, "scope2": 48, "scope3": 395 },
+            { "month": "May", "scope1": 125, "scope2": 47, "scope3": 390 },
+            { "month": "Jun", "scope1": 122, "scope2": 46, "scope3": 385 },
+            { "month": "Jul", "scope1": 120, "scope2": 45, "scope3": 380 }
+        ],
+        "regulatoryCompliance": [
+            {
+                "id": "rc-1",
+                "name": "CSRD Reporting",
+                "status": "Applicable - large undertaking",
+                "color": "yellow",
+                "deadline": "2026-12-31",
+                "description": "Corporate Sustainability Reporting Directive requires detailed ESG disclosure."
+            },
+            {
+                "id": "rc-2",
+                "name": "EU Taxonomy Disclosure",
+                "status": "Required - assess alignment",
+                "color": "yellow",
+                "deadline": "2026-06-30",
+                "description": "Disclose share of business activities aligned with EU Taxonomy."
+            },
+            {
+                "id": "rc-3",
+                "name": "SFDR Article 8",
+                "status": "Review product classification",
+                "color": "green",
+                "deadline": "2026-03-31",
+                "description": "Sustainable Finance Disclosure Regulation product classification."
+            }
+        ],
+        "priorityActions": [
+            "Measure and disclose Scope 1 & 2 GHG emissions",
+            "Conduct Scope 3 screening across the value chain",
+            "Set a Science Based Target (SBTi) net-zero commitment",
+            "Increase renewable energy usage - explore PPAs",
+            "Publish annual sustainability report aligned with GRI/ESRS"
+        ],
+        "esgScoreHistory": [
+            { "month": "Jan", "score": 65 },
+            { "month": "Feb", "score": 66 },
+            { "month": "Mar", "score": 67 },
+            { "month": "Apr", "score": 69 },
+            { "month": "May", "score": 70 },
+            { "month": "Jun", "score": 71 },
+            { "month": "Jul", "score": 72 }
+        ]
+    }
+
+
+@router.get("/esg-insights/radar")
+def get_esg_radar_scores():
+    """Get ESG radar scores"""
+    return {
+        "yourScore": { "environmental": 72, "social": 55, "governance": 68 },
+        "industryAverage": { "environmental": 58, "social": 62, "governance": 54 }
+    }
+
+
+@router.get("/esg-insights/scopes")
+def get_esg_scope_emissions():
+    """Get scope emissions data"""
+    return {
+        "scope1": { "label": "Direct emissions", "value": 120, "color": "#16a34a" },
+        "scope2": { "label": "Purchased energy", "value": 45, "color": "#3b82f6" },
+        "scope3": { "label": "Value chain", "value": 380, "color": "#8b5cf6" }
+    }
+
+
+@router.get("/esg-insights/regulatory")
+def get_esg_regulatory_compliance():
+    """Get regulatory compliance list"""
+    return [
+        {
+            "id": "rc-1",
+            "name": "CSRD Reporting",
+            "status": "Applicable - large undertaking",
+            "color": "yellow",
+            "deadline": "2026-12-31",
+            "description": "Corporate Sustainability Reporting Directive requires detailed ESG disclosure."
+        },
+        {
+            "id": "rc-2",
+            "name": "EU Taxonomy Disclosure",
+            "status": "Required - assess alignment",
+            "color": "yellow",
+            "deadline": "2026-06-30",
+            "description": "Disclose share of business activities aligned with EU Taxonomy."
+        },
+        {
+            "id": "rc-3",
+            "name": "SFDR Article 8",
+            "status": "Review product classification",
+            "color": "green",
+            "deadline": "2026-03-31",
+            "description": "Sustainable Finance Disclosure Regulation product classification."
+        }
+    ]
+
+
+@router.get("/esg-insights/priority-actions")
+def get_esg_priority_actions():
+    """Get priority actions list"""
+    return [
+        "Measure and disclose Scope 1 & 2 GHG emissions",
+        "Conduct Scope 3 screening across the value chain",
+        "Set a Science Based Target (SBTi) net-zero commitment",
+        "Increase renewable energy usage - explore PPAs",
+        "Publish annual sustainability report aligned with GRI/ESRS"
+    ]
+
 

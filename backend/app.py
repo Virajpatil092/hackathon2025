@@ -1,4 +1,6 @@
 import uvicorn
+import sys
+from pathlib import Path
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +9,36 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.routes.carbon_routes import router as carbon_router
 from backend.routes.user_routes import router as user_router
 from backend.routes.chat_routes import router as chat_router
+from backend.routes.green_products_routes import router as green_products_router
+
+sys.path.insert(0, str(Path(__file__).parent / "green-financing-service"))
+
+from app.api.v1.routes.products import router as products_router
+from app.crud.product import compare_products as crud_compare_products
+
+
+from contextlib import asynccontextmanager
+from backend.services.carbon_services import get_carbon_service
+from backend.services.recommendation_service import get_recommendation_service
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load and cache files into memory strictly on warm up / start up
+    print("Warm up: Loading transaction data and MCC mappings into memory...")
+    get_carbon_service()
+    print("Warm up complete: Data files loaded into memory.")
+
+    # Generate LLM-powered recommendations (async, uses cached carbon data)
+    print("Generating personalized recommendations via Gemini...")
+    try:
+        rec_service = get_recommendation_service()
+        result = await rec_service.generate_recommendations()
+        rec_count = len(result.get("recommendations", []))
+        print(f"Recommendations generated: {rec_count} items cached.")
+    except Exception as e:
+        print(f"Recommendation generation failed (will use fallback): {e}")
+
+    yield
 
 
 app = FastAPI(
@@ -14,7 +46,8 @@ app = FastAPI(
     description="An enterprise-ready backend mapping Spring Boot patterns to Python",
     version="1.0.0",
     docs_url="/swagger-ui",  # Customizing OpenAPI UI endpoints to feel like Springdoc
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Add CORS middleware for frontend communication
@@ -30,7 +63,15 @@ app.add_middleware(
 app.include_router(carbon_router)
 app.include_router(user_router)
 app.include_router(chat_router)
+app.include_router(green_products_router)
+app.include_router(green_products_router, prefix="/api/v1")
+app.include_router(products_router, prefix="/api/v1/green-financing/products", tags=["Green Financing"])
 
+
+# Compare products endpoint for Green Financing
+@app.get("/api/v1/green-financing/compare", tags=["Green Financing"])
+async def green_financing_compare():
+    return await crud_compare_products()
 
 
 @app.get("/actuator/health", tags=["Actuator"])
@@ -41,7 +82,7 @@ def health_check():
 @app.get("/", tags=["Info"])
 def root():
     return {
-        "message": "ESG Advisor API",
+        "message": "DecaESG API",
         "version": "1.0.0",
         "docs": "/docs",
         "swagger": "/swagger-ui"
