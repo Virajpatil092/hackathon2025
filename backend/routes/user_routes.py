@@ -5,6 +5,7 @@ from typing import List, Dict
 from datetime import datetime
 from pydantic import BaseModel
 from ..services.carbon_services import get_carbon_service
+from ..services.recommendation_service import get_recommendation_service
 
 router = APIRouter(prefix="/api/v1", tags=["User & Dashboard"])
 
@@ -111,7 +112,8 @@ def get_dashboard_summary():
         except Exception:
             green_products_count = 4
 
-        recommendations_count = len(get_recommendations())
+        rec_data = get_recommendation_service().get_cached_recommendations()
+        recommendations_count = len(rec_data.get('recommendations', []))
         
         return {
             "totalEmissions": round(total_emissions, 1),
@@ -337,65 +339,9 @@ def update_user_profile(body: Dict):
 
 @router.get("/recommendations")
 def get_recommendations():
-    """Get priority recommendations"""
-    return [
-        {
-            "id": "rec-1",
-            "icon": "train",
-            "title": "Switch Short-Haul Flights to Train",
-            "category": "Transport",
-            "priority": "high",
-            "description": "Short-haul flights generate approximately 20x more CO₂e per km than trains. Switching one return flight within Europe saves 200-400 kg CO₂e.",
-            "savingKg": 310,
-            "savingPct": 50,
-            "difficulty": "easy",
-            "timeframe": "1-2 weeks",
-            "ctaLabel": "Explore Rail Options",
-            "ctaLink": "#"
-        },
-        {
-            "id": "rec-2",
-            "icon": "leaf",
-            "title": "Reduce Meat Consumption",
-            "category": "Food & Drink",
-            "priority": "medium",
-            "description": "Your food spending suggests a high-meat diet. Replacing 2 meat meals/week with plant-based options cuts food emissions by approximately 25%.",
-            "savingKg": 37,
-            "savingPct": 27,
-            "difficulty": "easy",
-            "timeframe": "Immediate",
-            "ctaLabel": "Sustainable Diet Tips",
-            "ctaLink": "#"
-        },
-        {
-            "id": "rec-3",
-            "icon": "zap",
-            "title": "Switch to Renewable Energy Tariff",
-            "category": "Utilities",
-            "priority": "high",
-            "description": "Your utility provider emits above the national grid average. Switching to a 100% renewable tariff could eliminate your Scope 2 household emissions.",
-            "savingKg": 75,
-            "savingPct": 100,
-            "difficulty": "medium",
-            "timeframe": "2-4 weeks",
-            "ctaLabel": "View Green Energy Loans",
-            "ctaLink": "#"
-        },
-        {
-            "id": "rec-4",
-            "icon": "bike",
-            "title": "Cycle or Use Public Transport for Short Journeys",
-            "category": "Transport",
-            "priority": "medium",
-            "description": "Your transport spending is your #1 emission source. Replacing car trips under 5 km with cycling or public transport saves ~35% of transport emissions.",
-            "savingKg": 68,
-            "savingPct": 35,
-            "difficulty": "easy",
-            "timeframe": "Immediate",
-            "ctaLabel": "Find Bike Loans",
-            "ctaLink": "#"
-        }
-    ]
+    """Get personalized recommendations powered by LLM analysis of carbon data"""
+    service = get_recommendation_service()
+    return service.get_cached_recommendations()
 
 
 @router.get("/recommendations/{rec_id}/dismiss")

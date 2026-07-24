@@ -1,4 +1,6 @@
 import uvicorn
+import sys
+from pathlib import Path
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,10 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import route modules
 from backend.routes.carbon_routes import router as carbon_router
 from backend.routes.user_routes import router as user_router
+from backend.routes.chat_routes import router as chat_router
 from backend.routes.green_products_routes import router as green_products_router
 
-import sys
-from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "green-financing-service"))
 
 from app.api.v1.routes.products import router as products_router
@@ -18,6 +19,7 @@ from app.crud.product import compare_products as crud_compare_products
 
 from contextlib import asynccontextmanager
 from backend.services.carbon_services import get_carbon_service
+from backend.services.recommendation_service import get_recommendation_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,7 +27,19 @@ async def lifespan(app: FastAPI):
     print("Warm up: Loading transaction data and MCC mappings into memory...")
     get_carbon_service()
     print("Warm up complete: Data files loaded into memory.")
+
+    # Generate LLM-powered recommendations (async, uses cached carbon data)
+    print("Generating personalized recommendations via Gemini...")
+    try:
+        rec_service = get_recommendation_service()
+        result = await rec_service.generate_recommendations()
+        rec_count = len(result.get("recommendations", []))
+        print(f"Recommendations generated: {rec_count} items cached.")
+    except Exception as e:
+        print(f"Recommendation generation failed (will use fallback): {e}")
+
     yield
+
 
 app = FastAPI(
     title="Spring Boot Style FastAPI Application",
@@ -48,6 +62,7 @@ app.add_middleware(
 # Include routers
 app.include_router(carbon_router)
 app.include_router(user_router)
+app.include_router(chat_router)
 app.include_router(green_products_router)
 app.include_router(green_products_router, prefix="/api/v1")
 app.include_router(products_router, prefix="/api/v1/green-financing/products", tags=["Green Financing"])

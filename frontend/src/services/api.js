@@ -68,6 +68,10 @@ export const ENDPOINTS = {
 
   // Activity log
   getActivityLog:         { method: 'GET',    path: '/activities' },
+
+  // AI Chat Assistant
+  sendChatMessage:       { method: 'POST',   path: '/chat/message' },
+  getSuggestedPrompts:   { method: 'GET',    path: '/chat/suggested-prompts' },
 };
 
 // ─── HTTP Helper ─────────────────────────────────────────────────────────────
@@ -433,9 +437,26 @@ export async function getMCCStats() {
 export async function getRecommendations() {
   if (!USE_MOCK) {
     const res = await apiRequest(ENDPOINTS.getRecommendations);
-    return Array.isArray(res) ? res : (res.recommendations || res.products || []);
+    // New shape: { currentFootprint, projectedFootprint, totalPotentialSaving, recommendations: [...] }
+    if (res && res.recommendations) {
+      return res;
+    }
+    // Legacy fallback: plain array
+    const items = Array.isArray(res) ? res : (res.products || []);
+    return {
+      currentFootprint: null,
+      projectedFootprint: null,
+      totalPotentialSaving: items.reduce((s, r) => s + (r.savingKg || 0), 0),
+      recommendations: items,
+    };
   }
-  return mockRecommendations;
+  const totalSaving = mockRecommendations.reduce((s, r) => s + r.savingKg, 0);
+  return {
+    currentFootprint: 620,
+    projectedFootprint: Math.max(0, 620 - totalSaving),
+    totalPotentialSaving: totalSaving,
+    recommendations: mockRecommendations,
+  };
 }
 
 export async function dismissRecommendation(id) {
@@ -535,3 +556,56 @@ export async function getActivityLog() {
   if (!USE_MOCK) return apiRequest(ENDPOINTS.getActivityLog);
   return mockActivityLog;
 }
+
+// AI Chat Assistant
+export async function sendChatMessage(message, history = [], includeUserContext = true) {
+  const apiBase = BASE_URL || 'http://localhost:8000/api/v1';
+  try {
+    const res = await fetch(`${apiBase}/chat/message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        history,
+        include_user_context: includeUserContext
+      })
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Backend API connection failed, using fallback chat handler:', err);
+  }
+
+  // Fallback if backend API is offline during local demo
+  return {
+    reply: `I received your message: "${message}". As your ESG Advisor, I recommend focusing on reducing high-emission MCC merchant spending (like air travel and freight) and exploring Sustainability-Linked Loans.`,
+    suggested_actions: [
+      "Summarize my carbon footprint",
+      "How to lower travel emissions?",
+      "What green financing is available?"
+    ],
+    timestamp: new Date().toISOString()
+  };
+}
+
+export async function getSuggestedPrompts() {
+  const apiBase = BASE_URL || 'http://localhost:8000/api/v1';
+  try {
+    const res = await fetch(`${apiBase}/chat/suggested-prompts`);
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Failed to fetch suggested prompts from backend:', err);
+  }
+  return {
+    prompts: [
+      "Summarize my carbon footprint for this month",
+      "How can I cut my business travel emissions by 15%?",
+      "What green financing products suit my business?",
+      "Explain key actions to improve my ESG score"
+    ]
+  };
+}
+
